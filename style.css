@@ -1,14 +1,26 @@
 body {
   margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
   background-color: #000;
   font-family: sans-serif;
+
+  /* FIX: Stack elements vertically */
+  display: flex;
+  flex-direction: column;
+
+  /* Center horizontally only */
+  align-items: center;
 }
 
 canvas {
   border: 2px solid #fff;
   background-color: #111;
+}
+
+.game-title {
+  color: #fff;
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 20px;
+  font-family: 'Trebuchet MS', sans-serif;
+  text-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
 }
