@@ -1,3 +1,6 @@
+// Get high score as number
+let highScore = Number(localStorage.getItem("highScore")) || 0;
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -13,23 +16,76 @@ const player = {
 // Asteroids
 let asteroids = [];
 
-// Game state
-let startTime = null;
-let gameOver = false;
+// Stars for background
+let stars = [];
+for (let i = 0; i < 100; i++) {
+  stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 });
+}
 
-// Spawn asteroid on right side
+// Game state
+let gameOver = false;
+let paused = false;
+let elapsedTime = 0; // in seconds
+
+// Key tracking for smooth movement
+let keys = {};
+
+// Timing
+let lastTime = Date.now();
+let asteroidSpawnTimer = 0;
+const asteroidSpawnInterval = 1; // seconds
+
+// Event listeners
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+
+  if (gameOver && e.key.toLowerCase() === 'r') restartGame();
+  if (!gameOver && e.key.toLowerCase() === 'p') paused = !paused;
+});
+
+document.addEventListener('keyup', e => {
+  keys[e.key] = false;
+});
+
+// Spawn asteroid
 function spawnAsteroid() {
-  const size = Math.random() * 30 + 20; // 20 to 50
+  const size = Math.random() * 30 + 20;
   const y = Math.random() * (canvas.height - size);
-  const speed = Math.random() * 2 + 2; // 2 to 4
+
+  // Increase speed over time
+  const speed = Math.random() * 2 + 2 + elapsedTime * 0.05;
+
   asteroids.push({ x: canvas.width + size, y, size, speed });
 }
 
-// Update positions
-function update() {
-  // Move asteroids left
+// Update player
+function updatePlayer() {
+  if (!gameOver) {
+    if (keys['ArrowUp'] && player.y > 0) player.y -= player.speed;
+    if (keys['ArrowDown'] && player.y + player.height < canvas.height) player.y += player.speed;
+  }
+}
+
+// Update stars
+function updateStars(deltaTime) {
+  for (let star of stars) {
+    star.x -= 50 * deltaTime; // 50 px/sec
+    if (star.x < 0) star.x = canvas.width;
+  }
+}
+
+// Update everything
+function update(deltaTime) {
+  if (gameOver || paused) return;
+
+  elapsedTime += deltaTime;
+
+  updatePlayer();
+  updateStars(deltaTime);
+
+  // Move asteroids
   for (let asteroid of asteroids) {
-    asteroid.x -= asteroid.speed;
+    asteroid.x -= asteroid.speed * 60 * deltaTime;
   }
 
   // Remove off-screen asteroids
@@ -46,11 +102,34 @@ function update() {
       gameOver = true;
     }
   }
+
+  // Update high score
+  if (elapsedTime > highScore) {
+    highScore = elapsedTime;
+    localStorage.setItem("highScore", highScore);
+  }
+
+  // Spawn asteroids
+  asteroidSpawnTimer += deltaTime;
+  if (asteroidSpawnTimer >= asteroidSpawnInterval) {
+    spawnAsteroid();
+    asteroidSpawnTimer = 0;
+  }
+}
+
+// Draw stars
+function drawStars() {
+  ctx.fillStyle = 'white';
+  for (let star of stars) {
+    ctx.fillRect(star.x, star.y, star.size, star.size);
+  }
 }
 
 // Draw everything
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  drawStars();
 
   // Player
   ctx.fillStyle = 'lime';
@@ -65,12 +144,14 @@ function draw() {
   }
 
   // Score
-  if (startTime !== null) {
-    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    ctx.fillStyle = 'white';
-    ctx.font = '20px sans-serif';
-    ctx.fillText(`Time: ${elapsed}s`, 10, 30);
-  }
+  ctx.fillStyle = 'white';
+  ctx.font = '20px sans-serif';
+  ctx.fillText(`Time: ${elapsedTime.toFixed(1)}s`, 10, 30);
+
+  // High Score
+  ctx.fillStyle = 'yellow';
+  ctx.font = '20px sans-serif';
+  ctx.fillText(`High Score: ${highScore.toFixed(1)}s`, 10, 60);
 
   // Game Over
   if (gameOver) {
@@ -80,39 +161,36 @@ function draw() {
     ctx.font = '20px sans-serif';
     ctx.fillText('Press R to Restart', canvas.width / 2 - 80, canvas.height / 2 + 40);
   }
+
+  // Pause message
+  if (paused && !gameOver) {
+    ctx.fillStyle = 'white';
+    ctx.font = '30px sans-serif';
+    ctx.fillText('Paused', canvas.width / 2 - 50, canvas.height / 2);
+  }
 }
 
 // Game loop
 function gameLoop() {
-  if (!startTime) startTime = Date.now();
-  update();
+  const now = Date.now();
+  const deltaTime = (now - lastTime) / 1000;
+  lastTime = now;
+
+  update(deltaTime);
   draw();
-  if (!gameOver) {
-    requestAnimationFrame(gameLoop);
-  }
+
+  if (!gameOver) requestAnimationFrame(gameLoop);
 }
-
-// Player controls (up/down)
-document.addEventListener('keydown', e => {
-  if (!gameOver) {
-    if (e.key === 'ArrowUp' && player.y > 0) player.y -= player.speed;
-    else if (e.key === 'ArrowDown' && player.y + player.height < canvas.height) player.y += player.speed;
-  }
-  // Restart game
-  if (gameOver && e.key === 'r') restartGame();
-});
-
-// Spawn asteroids every second
-setInterval(() => {
-  if (!gameOver) spawnAsteroid();
-}, 1000);
 
 // Restart game
 function restartGame() {
   asteroids = [];
   player.y = canvas.height / 2 - 20;
   gameOver = false;
-  startTime = null;
+  paused = false;
+  elapsedTime = 0;
+  lastTime = Date.now();
+  asteroidSpawnTimer = 0;
   gameLoop();
 }
 
