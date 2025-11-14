@@ -32,7 +32,7 @@ canvas {
   justify-content: center;
 }
 
-.game-buttons button {
+#gameButtons button {
   background-color: #222;
   color: #fff;
   border: 2px solid #0f0;
@@ -43,7 +43,7 @@ canvas {
   transition: all 0.2s ease;
 }
 
-.game-buttons button:hover {
+#gameButtons button:hover {
   background-color: #0f0;
   color: #000;
 }

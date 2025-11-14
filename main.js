@@ -40,7 +40,11 @@ document.addEventListener('keydown', e => {
   keys[e.key] = true;
 
   if (gameOver && e.key.toLowerCase() === 'r') restartGame();
-  if (!gameOver && e.key.toLowerCase() === 'p') paused = !paused;
+  if (!gameOver && e.key.toLowerCase() === 'p') {
+    paused = !paused;
+    const pauseBtn = document.getElementById('pauseBtn');
+    if (pauseBtn) pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
+  }
 });
 
 document.addEventListener('keyup', e => {
@@ -196,3 +200,18 @@ function restartGame() {
 
 // Start game
 gameLoop();
+
+// Pause/Resume button
+const pauseBtn = document.getElementById('pauseBtn');
+pauseBtn.addEventListener('click', () => {
+  if (!gameOver) {
+    paused = !paused;
+    pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
+  }
+});
+
+// New Game button
+const newGameBtn = document.getElementById('newGameBtn');
+newGameBtn.addEventListener('click', () => {
+  restartGame();
+});
