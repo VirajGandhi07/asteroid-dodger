@@ -223,3 +223,24 @@ resetHighScoreBtn.addEventListener('click', () => {
   localStorage.setItem("highScore", highScore);
   draw(); // refresh the display immediately
 });
+
+// Instructions modal
+const instructionsBtn = document.getElementById('instructionsBtn');
+const instructionsModal = document.getElementById('instructionsModal');
+const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
+
+instructionsBtn.addEventListener('click', () => {
+  paused = true; // Pause game
+  const pauseBtn = document.getElementById('pauseBtn');
+  pauseBtn.textContent = "Resume Game";
+
+  instructionsModal.style.display = "flex"; // Show modal
+});
+
+// Close modal
+closeInstructionsBtn.addEventListener('click', () => {
+  instructionsModal.style.display = "none";
+  paused = false; // Resume game
+  const pauseBtn = document.getElementById('pauseBtn');
+  pauseBtn.textContent = "Pause Game";
+});
