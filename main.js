@@ -215,3 +215,11 @@ const newGameBtn = document.getElementById('newGameBtn');
 newGameBtn.addEventListener('click', () => {
   restartGame();
 });
+
+// Reset High Score button
+const resetHighScoreBtn = document.getElementById('resetScoreBtn');
+resetHighScoreBtn.addEventListener('click', () => {
+  highScore = 0;
+  localStorage.setItem("highScore", highScore);
+  draw(); // refresh the display immediately
+});
