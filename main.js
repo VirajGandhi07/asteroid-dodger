@@ -4,6 +4,10 @@ let highScore = Number(localStorage.getItem("highScore")) || 0;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Load asteroid image
+const asteroidImg = new Image();
+asteroidImg.src = "images/asteroid1.png";
+
 // Player
 const player = {
   x: 50,
@@ -140,11 +144,8 @@ function draw() {
   ctx.fillRect(player.x, player.y, player.width, player.height);
 
   // Asteroids
-  ctx.fillStyle = 'gray';
   for (let a of asteroids) {
-    ctx.beginPath();
-    ctx.arc(a.x + a.size / 2, a.y + a.size / 2, a.size / 2, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.drawImage(asteroidImg, a.x, a.y, a.size, a.size);
   }
 
   // Score
