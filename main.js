@@ -4,17 +4,28 @@ let highScore = Number(localStorage.getItem("highScore")) || 0;
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Load rocket image
+const rocketImg = new Image();
+rocketImg.src = "images/rocket1.png";
+
 // Load asteroid image
 const asteroidImg = new Image();
 asteroidImg.src = "images/asteroid1.png";
 
-// Player
+// Player (temp size before image loads)
 const player = {
   x: 50,
   y: canvas.height / 2 - 20,
-  width: 40,
+  width: 60,
   height: 40,
-  speed: 6
+  speed: 3
+};
+
+// Auto-scale rocket when loaded
+rocketImg.onload = () => {
+  const scale = 0.15;
+  player.width = rocketImg.width * scale;
+  player.height = rocketImg.height * scale;
 };
 
 // Asteroids
@@ -29,25 +40,26 @@ for (let i = 0; i < 100; i++) {
 // Game state
 let gameOver = false;
 let paused = false;
-let elapsedTime = 0; // in seconds
+let elapsedTime = 0;
 
-// Key tracking for smooth movement
+// Key tracking
 let keys = {};
 
 // Timing
 let lastTime = Date.now();
 let asteroidSpawnTimer = 0;
-const asteroidSpawnInterval = 1; // seconds
+const asteroidSpawnInterval = 1;
 
-// Event listeners
+// Key listeners
 document.addEventListener('keydown', e => {
   keys[e.key] = true;
 
   if (gameOver && e.key.toLowerCase() === 'r') restartGame();
+
   if (!gameOver && e.key.toLowerCase() === 'p') {
     paused = !paused;
     const pauseBtn = document.getElementById('pauseBtn');
-    if (pauseBtn) pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
+    pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
   }
 });
 
@@ -59,8 +71,6 @@ document.addEventListener('keyup', e => {
 function spawnAsteroid() {
   const size = Math.random() * 30 + 20;
   const y = Math.random() * (canvas.height - size);
-
-  // Increase speed over time
   const speed = Math.random() * 2 + 2 + elapsedTime * 0.05;
 
   asteroids.push({ x: canvas.width + size, y, size, speed });
@@ -77,7 +87,7 @@ function updatePlayer() {
 // Update stars
 function updateStars(deltaTime) {
   for (let star of stars) {
-    star.x -= 50 * deltaTime; // 50 px/sec
+    star.x -= 50 * deltaTime;
     if (star.x < 0) star.x = canvas.width;
   }
 }
@@ -91,33 +101,44 @@ function update(deltaTime) {
   updatePlayer();
   updateStars(deltaTime);
 
-  // Move asteroids
   for (let asteroid of asteroids) {
     asteroid.x -= asteroid.speed * 60 * deltaTime;
   }
 
-  // Remove off-screen asteroids
   asteroids = asteroids.filter(a => a.x + a.size > 0);
 
   // Collision detection
   for (let a of asteroids) {
-    if (
-      player.x < a.x + a.size &&
-      player.x + player.width > a.x &&
-      player.y < a.y + a.size &&
-      player.y + player.height > a.y
-    ) {
+    const ax = a.x + a.size / 2;
+    const ay = a.y + a.size / 2;
+    const ar = a.size / 2;
+
+    const rx = player.x + player.width * 0.25;
+    const ry = player.y + player.height * 0.2;
+    const rw = player.width * 0.5;
+    const rh = player.height * 0.6;
+
+    const rcx = rx + rw / 2;
+    const rcy = ry + rh / 2;
+
+    const dx = rcx - ax;
+    const dy = rcy - ay;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    const rocketRadius = Math.min(rw, rh) / 2;
+
+    if (distance < ar + rocketRadius) {
       gameOver = true;
+      // Explosion removed
     }
   }
 
-  // Update high score
+  // High score update
   if (elapsedTime > highScore) {
     highScore = elapsedTime;
     localStorage.setItem("highScore", highScore);
   }
 
-  // Spawn asteroids
   asteroidSpawnTimer += deltaTime;
   if (asteroidSpawnTimer >= asteroidSpawnInterval) {
     spawnAsteroid();
@@ -139,26 +160,25 @@ function draw() {
 
   drawStars();
 
-  // Player
-  ctx.fillStyle = 'lime';
-  ctx.fillRect(player.x, player.y, player.width, player.height);
+  // Draw rocket only if game is not over
+  if (!gameOver && rocketImg.complete) {
+    ctx.drawImage(rocketImg, player.x, player.y, player.width, player.height);
+  }
 
-  // Asteroids
+  // Draw asteroids
   for (let a of asteroids) {
     ctx.drawImage(asteroidImg, a.x, a.y, a.size, a.size);
   }
 
-  // Score
+  // UI
   ctx.fillStyle = 'white';
   ctx.font = '20px sans-serif';
   ctx.fillText(`Time: ${elapsedTime.toFixed(1)}s`, 10, 30);
 
-  // High Score
   ctx.fillStyle = 'yellow';
-  ctx.font = '20px sans-serif';
   ctx.fillText(`High Score: ${highScore.toFixed(1)}s`, 10, 60);
 
-  // Game Over
+  // Game over text
   if (gameOver) {
     ctx.fillStyle = 'red';
     ctx.font = '40px sans-serif';
@@ -167,7 +187,7 @@ function draw() {
     ctx.fillText('Press R to Restart', canvas.width / 2 - 80, canvas.height / 2 + 40);
   }
 
-  // Pause message
+  // Pause text
   if (paused && !gameOver) {
     ctx.fillStyle = 'white';
     ctx.font = '30px sans-serif';
@@ -184,7 +204,7 @@ function gameLoop() {
   update(deltaTime);
   draw();
 
-  if (!gameOver) requestAnimationFrame(gameLoop);
+  requestAnimationFrame(gameLoop);
 }
 
 // Restart game
@@ -196,33 +216,22 @@ function restartGame() {
   elapsedTime = 0;
   lastTime = Date.now();
   asteroidSpawnTimer = 0;
-  gameLoop();
 }
 
-// Start game
-gameLoop();
-
-// Pause/Resume button
-const pauseBtn = document.getElementById('pauseBtn');
-pauseBtn.addEventListener('click', () => {
+// Buttons
+document.getElementById('pauseBtn').addEventListener('click', () => {
   if (!gameOver) {
     paused = !paused;
     pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
   }
 });
 
-// New Game button
-const newGameBtn = document.getElementById('newGameBtn');
-newGameBtn.addEventListener('click', () => {
-  restartGame();
-});
+document.getElementById('newGameBtn').addEventListener('click', restartGame);
 
-// Reset High Score button
-const resetHighScoreBtn = document.getElementById('resetScoreBtn');
-resetHighScoreBtn.addEventListener('click', () => {
+document.getElementById('resetScoreBtn').addEventListener('click', () => {
   highScore = 0;
   localStorage.setItem("highScore", highScore);
-  draw(); // refresh the display immediately
+  draw();
 });
 
 // Instructions modal
@@ -231,17 +240,16 @@ const instructionsModal = document.getElementById('instructionsModal');
 const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
 
 instructionsBtn.addEventListener('click', () => {
-  paused = true; // Pause game
-  const pauseBtn = document.getElementById('pauseBtn');
+  paused = true;
   pauseBtn.textContent = "Resume Game";
-
-  instructionsModal.style.display = "flex"; // Show modal
+  instructionsModal.style.display = "flex";
 });
 
-// Close modal
 closeInstructionsBtn.addEventListener('click', () => {
   instructionsModal.style.display = "none";
-  paused = false; // Resume game
-  const pauseBtn = document.getElementById('pauseBtn');
+  paused = false;
   pauseBtn.textContent = "Pause Game";
 });
+
+// Start game loop
+gameLoop();
