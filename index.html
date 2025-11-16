@@ -10,8 +10,10 @@
 
   <h1 class="game-title">Asteroid Dodger</h1>
 
+  <!-- Game Canvas -->
   <canvas id="gameCanvas" width="800" height="400"></canvas>
 
+  <!-- Game Buttons -->
   <div id="gameButtons" style="margin-top: 20px; text-align: center;">
     <button id="pauseBtn">Pause Game</button>
     <button id="newGameBtn">New Game</button>
@@ -19,22 +21,34 @@
     <button id="instructionsBtn">Instructions</button>
   </div>
 
-  <!-- ✅ Instructions Modal -->
+  <!-- 🌟 Start Menu -->
+  <div id="startMenu">
+    <div class="start-panel">
+      <h2>Welome to Asteroid Dodger!</h2>
+      <button id="startGameBtn">Start Game</button>
+      <button id="startInstructionsBtn">Read Instructions</button>
+    </div>
+  </div>
+
+  <!-- 📘 Instructions Modal -->
   <div id="instructionsModal" class="modal">
     <div class="modal-content">
       <h2>How to Play</h2>
       <ul>
         <li>Use <strong>Arrow Up</strong> to move up</li>
         <li>Use <strong>Arrow Down</strong> to move down</li>
-        <li>Avoid the asteroids</li>
-        <li>Survive as long as possible</li>
+        <li>Avoid all asteroids</li>
+        <li>Survive as long as possible to increase high score</li>
         <li>Press <strong>P</strong> to pause/resume</li>
         <li>Press <strong>R</strong> to restart after Game Over</li>
       </ul>
+
       <button id="closeInstructionsBtn" class="close-btn">Close</button>
     </div>
   </div>
 
+  <!-- JS -->
   <script src="main.js"></script>
+
 </body>
 </html>
