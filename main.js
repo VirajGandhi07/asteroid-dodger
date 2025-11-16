@@ -1,5 +1,6 @@
 // Get high score as number
 let highScore = Number(localStorage.getItem("highScore")) || 0;
+let gameStarted = false;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -15,14 +16,14 @@ asteroidImg.src = "images/asteroid1.png";
 // Load background music
 const bgMusic = new Audio("sounds/background.mp3");
 bgMusic.loop = true;
-bgMusic.volume = 0.75;
+bgMusic.volume = 1;
 bgMusic.started = false;
 
 // Load explosion sound
 const explosionSound = new Audio("sounds/explosion.mp3");
 explosionSound.volume = 1.0;
 
-// Player (temp size before image loads)
+// Player (temp size)
 const player = {
   x: 50,
   y: canvas.height / 2 - 20,
@@ -44,10 +45,10 @@ let asteroids = [];
 // Stars for background
 let stars = [];
 for (let i = 0; i < 100; i++) {
-  stars.push({ 
-    x: Math.random() * canvas.width, 
-    y: Math.random() * canvas.height, 
-    size: Math.random() * 2 
+  stars.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2
   });
 }
 
@@ -68,23 +69,30 @@ const asteroidSpawnInterval = 1;
 document.addEventListener('keydown', e => {
   keys[e.key] = true;
 
+  if (!gameStarted) return;
+
   // Restart
   if (gameOver && e.key.toLowerCase() === 'r') restartGame();
 
   // Pause/unpause
   if (!gameOver && e.key.toLowerCase() === 'p') {
-    paused = !paused;
-    const pauseBtn = document.getElementById('pauseBtn');
-    pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
-
-    if (paused) bgMusic.pause();
-    else bgMusic.play();
+    togglePause();
   }
 });
 
 document.addEventListener('keyup', e => {
   keys[e.key] = false;
 });
+
+// Pause function
+function togglePause() {
+  paused = !paused;
+  const pauseBtn = document.getElementById('pauseBtn');
+  pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
+
+  if (paused) bgMusic.pause();
+  else bgMusic.play();
+}
 
 // Spawn asteroid
 function spawnAsteroid() {
@@ -113,7 +121,7 @@ function updateStars(deltaTime) {
 
 // Update everything
 function update(deltaTime) {
-  if (gameOver || paused) return;
+  if (gameOver || paused || !gameStarted) return;
 
   elapsedTime += deltaTime;
 
@@ -149,11 +157,11 @@ function update(deltaTime) {
     if (distance < ar + rocketRadius) {
       gameOver = true;
 
-      // Play explosion sound
+      // Explosion sound
       explosionSound.currentTime = 0;
       explosionSound.play();
 
-      // Stop music when game ends
+      // Stop music
       bgMusic.pause();
       bgMusic.currentTime = 0;
     }
@@ -186,25 +194,25 @@ function draw() {
 
   drawStars();
 
-  // Draw rocket only if game is not over
-  if (!gameOver && rocketImg.complete) {
+  if (gameStarted && !gameOver && rocketImg.complete) {
     ctx.drawImage(rocketImg, player.x, player.y, player.width, player.height);
   }
 
-  // Draw asteroids
   for (let a of asteroids) {
     ctx.drawImage(asteroidImg, a.x, a.y, a.size, a.size);
   }
 
-  // UI
-  ctx.fillStyle = 'white';
-  ctx.font = '20px sans-serif';
-  ctx.fillText(`Time: ${elapsedTime.toFixed(1)}s`, 10, 30);
+  // UI info
+  if (gameStarted) {
+    ctx.fillStyle = 'white';
+    ctx.font = '20px sans-serif';
+    ctx.fillText(`Time: ${elapsedTime.toFixed(1)}s`, 10, 30);
 
-  ctx.fillStyle = 'yellow';
-  ctx.fillText(`High Score: ${highScore.toFixed(1)}s`, 10, 60);
+    ctx.fillStyle = 'yellow';
+    ctx.fillText(`High Score: ${highScore.toFixed(1)}s`, 10, 60);
+  }
 
-  // Game over text
+  // Game over
   if (gameOver) {
     ctx.fillStyle = 'red';
     ctx.font = '40px sans-serif';
@@ -214,7 +222,7 @@ function draw() {
   }
 
   // Pause text
-  if (paused && !gameOver) {
+  if (paused && !gameOver && gameStarted) {
     ctx.fillStyle = 'white';
     ctx.font = '30px sans-serif';
     ctx.fillText('Paused', canvas.width / 2 - 50, canvas.height / 2);
@@ -230,12 +238,6 @@ function gameLoop() {
   update(deltaTime);
   draw();
 
-  // Start music once (browser requires user interaction)
-  if (!bgMusic.started) {
-    bgMusic.play().catch(() => {}); // prevents errors
-    bgMusic.started = true;
-  }
-
   requestAnimationFrame(gameLoop);
 }
 
@@ -249,20 +251,16 @@ function restartGame() {
   lastTime = Date.now();
   asteroidSpawnTimer = 0;
 
-  // Restart music
   bgMusic.currentTime = 0;
   bgMusic.play();
 }
 
 // Buttons
-document.getElementById('pauseBtn').addEventListener('click', () => {
-  if (!gameOver) {
-    paused = !paused;
-    pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
+const pauseBtn = document.getElementById('pauseBtn');
 
-    if (paused) bgMusic.pause();
-    else bgMusic.play();
-  }
+document.getElementById('pauseBtn').addEventListener('click', () => {
+  if (!gameStarted || gameOver) return;
+  togglePause();
 });
 
 document.getElementById('newGameBtn').addEventListener('click', restartGame);
@@ -281,9 +279,7 @@ const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
 instructionsBtn.addEventListener('click', () => {
   paused = true;
   pauseBtn.textContent = "Resume Game";
-
   bgMusic.pause();
-
   instructionsModal.style.display = "flex";
 });
 
@@ -291,9 +287,45 @@ closeInstructionsBtn.addEventListener('click', () => {
   instructionsModal.style.display = "none";
   paused = false;
   pauseBtn.textContent = "Pause Game";
+  if (gameStarted) bgMusic.play();
+});
 
+// Start menu logic
+const startMenu = document.getElementById("startMenu");
+const startGameBtn = document.getElementById("startGameBtn");
+const startInstructionsBtn = document.getElementById("startInstructionsBtn");
+
+// Start game
+startGameBtn.addEventListener("click", () => {
+  gameStarted = true;
+  startMenu.style.display = "none";
+
+  if (!bgMusic.started) {
+    bgMusic.play().catch(() => {});
+    bgMusic.started = true;
+  }
+});
+
+// Show instructions from start menu
+startInstructionsBtn.addEventListener("click", () => {
+  startMenu.style.display = "none";
+  instructionsModal.style.display = "flex";
+});
+
+// Close instructions before starting
+closeInstructionsBtn.addEventListener("click", () => {
+  instructionsModal.style.display = "none";
+
+  if (!gameStarted) {
+    // Returning from instructions before starting
+    startMenu.style.display = "flex";
+    return;
+  }
+
+  // If game already started
+  paused = false;
   bgMusic.play();
 });
 
-// Start game loop
+// Start game loop (runs idle until gameStarted = true)
 gameLoop();
