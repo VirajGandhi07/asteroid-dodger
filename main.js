@@ -12,6 +12,12 @@ rocketImg.src = "images/rocket1.png";
 const asteroidImg = new Image();
 asteroidImg.src = "images/asteroid1.png";
 
+// Load background music
+const bgMusic = new Audio("sounds/background.mp3");
+bgMusic.loop = true;
+bgMusic.volume = 0.75;
+bgMusic.started = false;
+
 // Player (temp size before image loads)
 const player = {
   x: 50,
@@ -34,7 +40,11 @@ let asteroids = [];
 // Stars for background
 let stars = [];
 for (let i = 0; i < 100; i++) {
-  stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 });
+  stars.push({ 
+    x: Math.random() * canvas.width, 
+    y: Math.random() * canvas.height, 
+    size: Math.random() * 2 
+  });
 }
 
 // Game state
@@ -54,12 +64,17 @@ const asteroidSpawnInterval = 1;
 document.addEventListener('keydown', e => {
   keys[e.key] = true;
 
+  // Restart
   if (gameOver && e.key.toLowerCase() === 'r') restartGame();
 
+  // Pause/unpause
   if (!gameOver && e.key.toLowerCase() === 'p') {
     paused = !paused;
     const pauseBtn = document.getElementById('pauseBtn');
     pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
+
+    if (paused) bgMusic.pause();
+    else bgMusic.play();
   }
 });
 
@@ -129,7 +144,10 @@ function update(deltaTime) {
 
     if (distance < ar + rocketRadius) {
       gameOver = true;
-      // Explosion removed
+
+      // Stop music when game ends
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
     }
   }
 
@@ -204,6 +222,12 @@ function gameLoop() {
   update(deltaTime);
   draw();
 
+  // Start music once (browser requires user interaction)
+  if (!bgMusic.started) {
+    bgMusic.play().catch(() => {}); // prevents errors
+    bgMusic.started = true;
+  }
+
   requestAnimationFrame(gameLoop);
 }
 
@@ -216,6 +240,10 @@ function restartGame() {
   elapsedTime = 0;
   lastTime = Date.now();
   asteroidSpawnTimer = 0;
+
+  // Restart music
+  bgMusic.currentTime = 0;
+  bgMusic.play();
 }
 
 // Buttons
@@ -223,6 +251,9 @@ document.getElementById('pauseBtn').addEventListener('click', () => {
   if (!gameOver) {
     paused = !paused;
     pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
+
+    if (paused) bgMusic.pause();
+    else bgMusic.play();
   }
 });
 
@@ -242,6 +273,9 @@ const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
 instructionsBtn.addEventListener('click', () => {
   paused = true;
   pauseBtn.textContent = "Resume Game";
+
+  bgMusic.pause();
+
   instructionsModal.style.display = "flex";
 });
 
@@ -249,6 +283,8 @@ closeInstructionsBtn.addEventListener('click', () => {
   instructionsModal.style.display = "none";
   paused = false;
   pauseBtn.textContent = "Pause Game";
+
+  bgMusic.play();
 });
 
 // Start game loop
