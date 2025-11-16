@@ -18,6 +18,10 @@ bgMusic.loop = true;
 bgMusic.volume = 0.75;
 bgMusic.started = false;
 
+// Load explosion sound
+const explosionSound = new Audio("sounds/explosion.mp3");
+explosionSound.volume = 1.0;
+
 // Player (temp size before image loads)
 const player = {
   x: 50,
@@ -144,6 +148,10 @@ function update(deltaTime) {
 
     if (distance < ar + rocketRadius) {
       gameOver = true;
+
+      // Play explosion sound
+      explosionSound.currentTime = 0;
+      explosionSound.play();
 
       // Stop music when game ends
       bgMusic.pause();
