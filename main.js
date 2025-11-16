@@ -106,7 +106,10 @@ let keys = {};
 // Timing
 let lastTime = Date.now();
 let asteroidSpawnTimer = 0;
-const asteroidSpawnInterval = 1;
+
+function getAsteroidSpawnInterval() {
+  return Math.max(0.2, 1 - elapsedTime * 0.02);
+}
 
 // Key listeners
 document.addEventListener('keydown', e => {
@@ -218,7 +221,7 @@ function update(deltaTime) {
   }
 
   asteroidSpawnTimer += deltaTime;
-  if (asteroidSpawnTimer >= asteroidSpawnInterval) {
+  if (asteroidSpawnTimer >= getAsteroidSpawnInterval()) {
     spawnAsteroid();
     asteroidSpawnTimer = 0;
   }
