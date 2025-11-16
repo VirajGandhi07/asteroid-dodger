@@ -258,11 +258,22 @@ function draw() {
 
   // Game over
   if (gameOver) {
-    ctx.fillStyle = 'red';
-    ctx.font = '40px sans-serif';
-    ctx.fillText('Game Over!', canvas.width / 2 - 120, canvas.height / 2);
-    ctx.font = '20px sans-serif';
-    ctx.fillText('Press R to Restart', canvas.width / 2 - 80, canvas.height / 2 + 40);
+    ctx.save(); // save current state
+
+    // Neon glow effect
+    ctx.fillStyle = '#0f0'; // bright green
+    ctx.shadowColor = '#0f0';
+    ctx.shadowBlur = 20;
+    ctx.font = 'bold 50px Trebuchet MS';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME OVER!', canvas.width / 2, canvas.height / 2 - 20);
+
+    // Subtext
+    ctx.shadowBlur = 10;
+    ctx.font = '20px Trebuchet MS';
+    ctx.fillText('Press R to Restart', canvas.width / 2, canvas.height / 2 + 30);
+
+    ctx.restore(); // restore state
   }
 
   // Pause text
