@@ -1,0 +1,13 @@
+/* ============================================
+   GAME TITLE STYLES
+   Heading appearance & glowing effect
+   ============================================ */
+
+.game-title {
+  color: #fff;
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 20px;
+  font-family: 'Trebuchet MS', sans-serif;
+  text-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
+}
