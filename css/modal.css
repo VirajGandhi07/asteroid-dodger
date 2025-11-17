@@ -1,0 +1,56 @@
+/* ============================================
+   INSTRUCTIONS MODAL
+   Popup window styling
+   ============================================ */
+
+.modal {
+  display: none; /* Hidden until triggered */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 1500;
+}
+
+.modal-content {
+  background: #111;
+  padding: 20px;
+  width: 400px;
+  border: 2px solid #0f0;
+  border-radius: 10px;
+  text-align: left;
+  color: #0f0;
+  font-family: 'Trebuchet MS', sans-serif;
+  box-shadow: 0 0 20px #0f0;
+}
+
+/* Title inside modal */
+.modal-content h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* Modal close button */
+.close-btn {
+  display: block;
+  margin: 20px auto 0 auto;
+  background-color: #222;
+  color: #fff;
+  border: 2px solid #0f0;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.2s;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+.close-btn:hover {
+  background-color: #0f0;
+  color: #000;
+  box-shadow: 0 0 15px #0f0;
+}

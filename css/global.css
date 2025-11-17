@@ -1,0 +1,22 @@
+/* ============================================
+   GLOBAL STYLES
+   Body layout, default backgrounds, canvas
+   ============================================ */
+
+body {
+  margin: 0;
+  background-color: #000;
+  font-family: sans-serif;
+
+  /* Vertical stacking layout */
+  display: flex;
+  flex-direction: column;
+
+  /* Center horizontally */
+  align-items: center;
+}
+
+canvas {
+  border: 2px solid #fff;
+  background-color: #111;
+}
