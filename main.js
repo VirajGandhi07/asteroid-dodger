@@ -3,6 +3,7 @@ import { player, initPlayer, updatePlayer as playerUpdate } from './player.js';
 import { asteroids, spawnAsteroid, updateAsteroids, resetAsteroids } from './asteroids.js';
 import initUI from './ui.js';
 import { draw as renderDraw } from './renderer.js';
+import { isColliding, getAsteroidSpawnInterval } from './utils.js';
 
 let ui = null;
 
@@ -61,10 +62,6 @@ let elapsedTime = 0;
 let lastTime = Date.now();
 let asteroidSpawnTimer = 0;
 
-function getAsteroidSpawnInterval() {
-  return Math.max(0.2, 1 - elapsedTime * 0.02);
-}
-
 // Pause function
 function togglePause() {
   paused = !paused;
@@ -101,27 +98,9 @@ function update(deltaTime) {
   // Let asteroids module update positions and clean up off-screen ones
   updateAsteroids(deltaTime);
 
-  // Collision detection
+  // Collision detection (delegated to utils)
   for (let a of asteroids) {
-    const ax = a.x + a.size / 2;
-    const ay = a.y + a.size / 2;
-    const ar = a.size / 2;
-
-    const rx = player.x + player.width * 0.25;
-    const ry = player.y + player.height * 0.2;
-    const rw = player.width * 0.5;
-    const rh = player.height * 0.6;
-
-    const rcx = rx + rw / 2;
-    const rcy = ry + rh / 2;
-
-    const dx = rcx - ax;
-    const dy = rcy - ay;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    const rocketRadius = Math.min(rw, rh) / 2;
-
-    if (distance < ar + rocketRadius) {
+    if (isColliding(player, a)) {
       gameOver = true;
 
       // Explosion sound
@@ -142,7 +121,7 @@ function update(deltaTime) {
   }
 
   asteroidSpawnTimer += deltaTime;
-  if (asteroidSpawnTimer >= getAsteroidSpawnInterval()) {
+  if (asteroidSpawnTimer >= getAsteroidSpawnInterval(elapsedTime)) {
     spawnAsteroid(canvas.width, canvas.height, elapsedTime);
     asteroidSpawnTimer = 0;
   }
