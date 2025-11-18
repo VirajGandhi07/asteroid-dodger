@@ -125,6 +125,20 @@ export default function createGame(deps) {
     else bgMusic.play();
   }
 
+  function pause() {
+    if (!paused) {
+      paused = true;
+      bgMusic.pause();
+    }
+  }
+
+  function resume() {
+    if (paused) {
+      paused = false;
+      bgMusic.play();
+    }
+  }
+
   function isGameOver() { return gameOver; }
   function isStarted() { return gameStarted; }
 
@@ -137,6 +151,8 @@ export default function createGame(deps) {
     start,
     restart,
     togglePause,
+    pause,
+    resume,
     isGameOver,
     isStarted,
     resetHighScore,
