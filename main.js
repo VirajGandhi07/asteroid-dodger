@@ -1,4 +1,5 @@
 import { bgMusic, explosionSound, initAudio, getMuted } from './audio.js';
+import { player, initPlayer, updatePlayer as playerUpdate } from './player.js';
 
 // Get high score as number
 let highScore = Number(localStorage.getItem("highScore")) || 0;
@@ -16,15 +17,15 @@ const asteroidImg = new Image();
 asteroidImg.src = "images/asteroid1.png";
 // Audio is handled in `audio.js` module; initialize controls
 initAudio();
+// Initialize player input and position
+initPlayer({
+  isGameStarted: () => gameStarted,
+  isGameOver: () => gameOver,
+  onRestart: () => restartGame(),
+  onTogglePause: () => togglePause()
+});
 
-// Player (temp size)
-const player = {
-  x: 50,
-  y: canvas.height / 2 - 20,
-  width: 60,
-  height: 40,
-  speed: 3
-};
+// Player is provided by `player.js`; ensure it's initialized
 
 // Auto-scale rocket when loaded
 rocketImg.onload = () => {
@@ -51,8 +52,6 @@ let gameOver = false;
 let paused = false;
 let elapsedTime = 0;
 
-// Key tracking
-let keys = {};
 
 // Timing
 let lastTime = Date.now();
@@ -61,25 +60,6 @@ let asteroidSpawnTimer = 0;
 function getAsteroidSpawnInterval() {
   return Math.max(0.2, 1 - elapsedTime * 0.02);
 }
-
-// Key listeners
-document.addEventListener('keydown', e => {
-  keys[e.key] = true;
-
-  if (!gameStarted) return;
-
-  // Restart
-  if (gameOver && e.key.toLowerCase() === 'r') restartGame();
-
-  // Pause/unpause
-  if (!gameOver && e.key.toLowerCase() === 'p') {
-    togglePause();
-  }
-});
-
-document.addEventListener('keyup', e => {
-  keys[e.key] = false;
-});
 
 // Pause function
 function togglePause() {
@@ -100,12 +80,9 @@ function spawnAsteroid() {
   asteroids.push({ x: canvas.width + size, y, size, speed });
 }
 
-// Update player
+// Update player (delegates to player module)
 function updatePlayer() {
-  if (!gameOver) {
-    if (keys['ArrowUp'] && player.y > 0) player.y -= player.speed;
-    if (keys['ArrowDown'] && player.y + player.height < canvas.height) player.y += player.speed;
-  }
+  playerUpdate(gameOver, canvas.height);
 }
 
 // Update stars
