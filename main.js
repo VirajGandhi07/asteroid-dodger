@@ -1,3 +1,5 @@
+import { bgMusic, explosionSound, initAudio, getMuted } from './audio.js';
+
 // Get high score as number
 let highScore = Number(localStorage.getItem("highScore")) || 0;
 let gameStarted = false;
@@ -12,59 +14,8 @@ rocketImg.src = "images/rocket1.png";
 // Load asteroid image
 const asteroidImg = new Image();
 asteroidImg.src = "images/asteroid1.png";
-
-// Load background music
-const bgMusic = new Audio("sounds/background.mp3");
-bgMusic.loop = true;
-bgMusic.volume = 1;
-bgMusic.started = false;
-
-// Load explosion sound
-const explosionSound = new Audio("sounds/explosion.mp3");
-explosionSound.volume = 0.5;
-
-const volUpBtn = document.getElementById('volUp');
-const volDownBtn = document.getElementById('volDown');
-const muteBtn = document.getElementById('muteBtn');
-
-let isMuted = false;
-
-// Volume step
-const volumeStep = 0.1;
-
-// Volume Up
-volUpBtn.addEventListener('click', () => {
-  if (isMuted) {
-    isMuted = false;
-    muteBtn.classList.remove('active');
-  }
-  bgMusic.volume = Math.min(bgMusic.volume + volumeStep, 1);
-  explosionSound.volume = bgMusic.volume; // sync explosion
-});
-
-// Volume Down
-volDownBtn.addEventListener('click', () => {
-  if (isMuted) {
-    isMuted = false;
-    muteBtn.classList.remove('active');
-  }
-  bgMusic.volume = Math.max(bgMusic.volume - volumeStep, 0);
-  explosionSound.volume = bgMusic.volume; // sync explosion
-});
-
-// Mute Toggle
-muteBtn.addEventListener('click', () => {
-  isMuted = !isMuted;
-  if (isMuted) {
-    bgMusic.volume = 0;
-    explosionSound.volume = 0;
-    muteBtn.classList.add('active');
-  } else {
-    bgMusic.volume = 0.75; // restore default
-    explosionSound.volume = bgMusic.volume;
-    muteBtn.classList.remove('active');
-  }
-});
+// Audio is handled in `audio.js` module; initialize controls
+initAudio();
 
 // Player (temp size)
 const player = {
@@ -205,7 +156,7 @@ function update(deltaTime) {
 
       // Explosion sound
       explosionSound.currentTime = 0;
-      explosionSound.volume = isMuted ? 0 : bgMusic.volume;
+      explosionSound.volume = getMuted() ? 0 : bgMusic.volume;
       explosionSound.play();
 
       // Stop music
