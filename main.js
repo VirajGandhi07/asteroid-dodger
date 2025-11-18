@@ -2,6 +2,7 @@ import { bgMusic, explosionSound, initAudio, getMuted } from './audio.js';
 import { player, initPlayer, updatePlayer as playerUpdate } from './player.js';
 import { asteroids, spawnAsteroid, updateAsteroids, resetAsteroids } from './asteroids.js';
 import initUI from './ui.js';
+import { draw as renderDraw } from './renderer.js';
 
 let ui = null;
 
@@ -147,65 +148,7 @@ function update(deltaTime) {
   }
 }
 
-// Draw stars
-function drawStars() {
-  ctx.fillStyle = 'white';
-  for (let star of stars) {
-    ctx.fillRect(star.x, star.y, star.size, star.size);
-  }
-}
-
-// Draw everything
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  drawStars();
-
-  if (gameStarted && !gameOver && rocketImg.complete) {
-    ctx.drawImage(rocketImg, player.x, player.y, player.width, player.height);
-  }
-
-  for (let a of asteroids) {
-    ctx.drawImage(asteroidImg, a.x, a.y, a.size, a.size);
-  }
-
-  // UI info
-  if (gameStarted) {
-    ctx.fillStyle = 'white';
-    ctx.font = '20px sans-serif';
-    ctx.fillText(`Time: ${elapsedTime.toFixed(1)}s`, 10, 30);
-
-    ctx.fillStyle = 'yellow';
-    ctx.fillText(`High Score: ${highScore.toFixed(1)}s`, 10, 60);
-  }
-
-  // Game over
-  if (gameOver) {
-    ctx.save(); // save current state
-
-    // Neon glow effect
-    ctx.fillStyle = '#0f0'; // bright green
-    ctx.shadowColor = '#0f0';
-    ctx.shadowBlur = 20;
-    ctx.font = 'bold 50px Trebuchet MS';
-    ctx.textAlign = 'center';
-    ctx.fillText('GAME OVER!', canvas.width / 2, canvas.height / 2 - 20);
-
-    // Subtext
-    ctx.shadowBlur = 10;
-    ctx.font = '20px Trebuchet MS';
-    ctx.fillText('Press R to Restart', canvas.width / 2, canvas.height / 2 + 30);
-
-    ctx.restore(); // restore state
-  }
-
-  // Pause text
-  if (paused && !gameOver && gameStarted) {
-    ctx.fillStyle = 'white';
-    ctx.font = '30px sans-serif';
-    ctx.fillText('Paused', canvas.width / 2 - 50, canvas.height / 2);
-  }
-}
+// Rendering is handled by renderer.js
 
 // Game loop
 function gameLoop() {
@@ -214,7 +157,14 @@ function gameLoop() {
   lastTime = now;
 
   update(deltaTime);
-  draw();
+  renderDraw(ctx, canvas, player, asteroids, rocketImg, asteroidImg, {
+    elapsedTime,
+    highScore,
+    gameStarted,
+    gameOver,
+    paused,
+    stars
+  });
 
   requestAnimationFrame(gameLoop);
 }
@@ -242,7 +192,14 @@ ui = initUI({
   onResetHighScore: () => {
     highScore = 0;
     localStorage.setItem('highScore', highScore);
-    draw();
+    renderDraw(ctx, canvas, player, asteroids, rocketImg, asteroidImg, {
+      elapsedTime,
+      highScore,
+      gameStarted,
+      gameOver,
+      paused,
+      stars
+    });
   },
   onPauseForInstructions: () => {
     paused = true;
