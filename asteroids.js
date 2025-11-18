@@ -1,18 +1,27 @@
 // Asteroids module: manages asteroid array, spawning, updating, and reset
 
+import {
+  ASTEROID_MIN_SIZE,
+  ASTEROID_SIZE_VARIATION,
+  ASTEROID_SPEED_BASE,
+  ASTEROID_SPEED_VARIATION,
+  ASTEROID_SPEED_GROWTH,
+  TIME_SCALE
+} from './config.js';
+
 export const asteroids = [];
 
 export function spawnAsteroid(canvasWidth, canvasHeight, elapsedTime) {
-  const size = Math.random() * 30 + 20;
+  const size = Math.random() * ASTEROID_SIZE_VARIATION + ASTEROID_MIN_SIZE;
   const y = Math.random() * (canvasHeight - size);
-  const speed = Math.random() * 2 + 2 + elapsedTime * 0.05;
+  const speed = Math.random() * ASTEROID_SPEED_VARIATION + ASTEROID_SPEED_BASE + elapsedTime * ASTEROID_SPEED_GROWTH;
 
   asteroids.push({ x: canvasWidth + size, y, size, speed });
 }
 
 export function updateAsteroids(deltaTime) {
   for (let asteroid of asteroids) {
-    asteroid.x -= asteroid.speed * 60 * deltaTime;
+    asteroid.x -= asteroid.speed * TIME_SCALE * deltaTime;
   }
 
   // Remove off-screen asteroids (mutate array in-place)

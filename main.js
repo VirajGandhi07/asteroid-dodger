@@ -5,8 +5,11 @@ import initUI from './ui.js';
 import { draw as renderDraw } from './renderer.js';
 import { isColliding, getAsteroidSpawnInterval } from './utils.js';
 import createGame from './game.js';
+import { STAR_COUNT, STAR_SPEED, PLAYER_SCALE } from './config.js';
 
 let ui = null;
+// Track whether opening instructions caused a pause so we only resume when appropriate
+let instructionsPausedByUI = false;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -26,16 +29,15 @@ initAudio();
 
 // Auto-scale rocket when loaded
 rocketImg.onload = () => {
-  const scale = 0.15;
-  player.width = rocketImg.width * scale;
-  player.height = rocketImg.height * scale;
+  player.width = rocketImg.width * PLAYER_SCALE;
+  player.height = rocketImg.height * PLAYER_SCALE;
 };
 
 // Asteroids are managed by `asteroids.js`
 
 // Stars for background
 let stars = [];
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < STAR_COUNT; i++) {
   stars.push({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
@@ -49,7 +51,7 @@ let game = null;
 // Update stars
 function updateStars(deltaTime) {
   for (let star of stars) {
-    star.x -= 50 * deltaTime;
+    star.x -= STAR_SPEED * deltaTime;
     if (star.x < 0) star.x = canvas.width;
   }
 }
@@ -95,14 +97,24 @@ ui = initUI({
     renderDraw(ctx, canvas, player, asteroids, rocketImg, asteroidImg, Object.assign(game.getState(), { stars }));
   },
   onPauseForInstructions: () => {
-    game.togglePause();
-    if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Resume Game');
-    bgMusic.pause();
+    // Pause the game and audio when opening instructions, but only if the game was running.
+    if (game.isStarted() && !game.getState().paused) {
+      game.pause();
+      instructionsPausedByUI = true;
+      if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Resume Game');
+      bgMusic.pause();
+    } else {
+      instructionsPausedByUI = false;
+    }
   },
   onCloseInstructions: () => {
-    game.togglePause();
-    if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Pause Game');
-    if (game.isStarted()) bgMusic.play();
+    // Resume game/audio only if UI paused it when opening instructions
+    if (instructionsPausedByUI) {
+      game.resume();
+      instructionsPausedByUI = false;
+      if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Pause Game');
+      if (game.isStarted()) bgMusic.play();
+    }
   },
   onStartGame: () => {
     game.start();
