@@ -1,6 +1,9 @@
 import { bgMusic, explosionSound, initAudio, getMuted } from './audio.js';
 import { player, initPlayer, updatePlayer as playerUpdate } from './player.js';
 import { asteroids, spawnAsteroid, updateAsteroids, resetAsteroids } from './asteroids.js';
+import initUI from './ui.js';
+
+let ui = null;
 
 // Get high score as number
 let highScore = Number(localStorage.getItem("highScore")) || 0;
@@ -64,8 +67,7 @@ function getAsteroidSpawnInterval() {
 // Pause function
 function togglePause() {
   paused = !paused;
-  const pauseBtn = document.getElementById('pauseBtn');
-  pauseBtn.textContent = paused ? "Resume Game" : "Pause Game";
+  if (ui && ui.setPauseButtonText) ui.setPauseButtonText(paused ? "Resume Game" : "Pause Game");
 
   if (paused) bgMusic.pause();
   else bgMusic.play();
@@ -231,76 +233,34 @@ function restartGame() {
   bgMusic.play();
 }
 
-// Buttons
-const pauseBtn = document.getElementById('pauseBtn');
-
-document.getElementById('pauseBtn').addEventListener('click', () => {
-  if (!gameStarted || gameOver) return;
-  togglePause();
-});
-
-document.getElementById('newGameBtn').addEventListener('click', restartGame);
-
-document.getElementById('resetScoreBtn').addEventListener('click', () => {
-  highScore = 0;
-  localStorage.setItem("highScore", highScore);
-  draw();
-});
-
-// Instructions modal
-const instructionsBtn = document.getElementById('instructionsBtn');
-const instructionsModal = document.getElementById('instructionsModal');
-const closeInstructionsBtn = document.getElementById('closeInstructionsBtn');
-
-instructionsBtn.addEventListener('click', () => {
-  paused = true;
-  pauseBtn.textContent = "Resume Game";
-  bgMusic.pause();
-  instructionsModal.style.display = "flex";
-});
-
-closeInstructionsBtn.addEventListener('click', () => {
-  instructionsModal.style.display = "none";
-  paused = false;
-  pauseBtn.textContent = "Pause Game";
-  if (gameStarted) bgMusic.play();
-});
-
-// Start menu logic
-const startMenu = document.getElementById("startMenu");
-const startGameBtn = document.getElementById("startGameBtn");
-const startInstructionsBtn = document.getElementById("startInstructionsBtn");
-
-// Start game
-startGameBtn.addEventListener("click", () => {
-  gameStarted = true;
-  startMenu.style.display = "none";
-
-  if (!bgMusic.started) {
-    bgMusic.play().catch(() => {});
-    bgMusic.started = true;
+// Initialize UI (wires DOM handlers) with callbacks into game logic
+ui = initUI({
+  getGameStarted: () => gameStarted,
+  getGameOver: () => gameOver,
+  onTogglePause: () => togglePause(),
+  onRestart: () => restartGame(),
+  onResetHighScore: () => {
+    highScore = 0;
+    localStorage.setItem('highScore', highScore);
+    draw();
+  },
+  onPauseForInstructions: () => {
+    paused = true;
+    if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Resume Game');
+    bgMusic.pause();
+  },
+  onCloseInstructions: () => {
+    paused = false;
+    if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Pause Game');
+    if (gameStarted) bgMusic.play();
+  },
+  onStartGame: () => {
+    gameStarted = true;
+    if (!bgMusic.started) {
+      bgMusic.play().catch(() => {});
+      bgMusic.started = true;
+    }
   }
-});
-
-// Show instructions from start menu
-startInstructionsBtn.addEventListener("click", () => {
-  startMenu.style.display = "none";
-  instructionsModal.style.display = "flex";
-});
-
-// Close instructions before starting
-closeInstructionsBtn.addEventListener("click", () => {
-  instructionsModal.style.display = "none";
-
-  if (!gameStarted) {
-    // Returning from instructions before starting
-    startMenu.style.display = "flex";
-    return;
-  }
-
-  // If game already started
-  paused = false;
-  bgMusic.play();
 });
 
 // Start game loop (runs idle until gameStarted = true)
