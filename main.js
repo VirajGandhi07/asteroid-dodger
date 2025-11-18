@@ -1,5 +1,6 @@
 import { bgMusic, explosionSound, initAudio, getMuted } from './audio.js';
 import { player, initPlayer, updatePlayer as playerUpdate } from './player.js';
+import { asteroids, spawnAsteroid, updateAsteroids, resetAsteroids } from './asteroids.js';
 
 // Get high score as number
 let highScore = Number(localStorage.getItem("highScore")) || 0;
@@ -34,8 +35,7 @@ rocketImg.onload = () => {
   player.height = rocketImg.height * scale;
 };
 
-// Asteroids
-let asteroids = [];
+// Asteroids are managed by `asteroids.js`
 
 // Stars for background
 let stars = [];
@@ -71,14 +71,7 @@ function togglePause() {
   else bgMusic.play();
 }
 
-// Spawn asteroid
-function spawnAsteroid() {
-  const size = Math.random() * 30 + 20;
-  const y = Math.random() * (canvas.height - size);
-  const speed = Math.random() * 2 + 2 + elapsedTime * 0.05;
-
-  asteroids.push({ x: canvas.width + size, y, size, speed });
-}
+// Asteroid spawning/updating now handled by `asteroids.js`
 
 // Update player (delegates to player module)
 function updatePlayer() {
@@ -102,11 +95,8 @@ function update(deltaTime) {
   updatePlayer();
   updateStars(deltaTime);
 
-  for (let asteroid of asteroids) {
-    asteroid.x -= asteroid.speed * 60 * deltaTime;
-  }
-
-  asteroids = asteroids.filter(a => a.x + a.size > 0);
+  // Let asteroids module update positions and clean up off-screen ones
+  updateAsteroids(deltaTime);
 
   // Collision detection
   for (let a of asteroids) {
@@ -150,7 +140,7 @@ function update(deltaTime) {
 
   asteroidSpawnTimer += deltaTime;
   if (asteroidSpawnTimer >= getAsteroidSpawnInterval()) {
-    spawnAsteroid();
+    spawnAsteroid(canvas.width, canvas.height, elapsedTime);
     asteroidSpawnTimer = 0;
   }
 }
@@ -229,7 +219,7 @@ function gameLoop() {
 
 // Restart game
 function restartGame() {
-  asteroids = [];
+  resetAsteroids();
   player.y = canvas.height / 2 - 20;
   gameOver = false;
   paused = false;
