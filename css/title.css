@@ -4,10 +4,10 @@
    ============================================ */
 
 .game-title {
-  color: #fff;
-  text-align: center;
-  font-size: 36px;
-  margin-bottom: 20px;
+  color: #fff;                                  /* White text */
+  text-align: center;                           /* Centered on page */
+  font-size: 36px;                              /* Large heading */
+  margin-bottom: 20px;                          /* Space below title */
   font-family: 'Trebuchet MS', sans-serif;
-  text-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
+  text-shadow: 0 0 10px #0f0, 0 0 20px #0f0;   /* Neon green glow effect */
 }

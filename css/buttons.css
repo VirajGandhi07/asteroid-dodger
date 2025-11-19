@@ -3,6 +3,7 @@
    Play, Restart, Instructions buttons
    ============================================ */
 
+/* Layout for the row of game buttons */
 .game-buttons {
   margin-top: 20px;
   display: flex;
@@ -10,6 +11,7 @@
   justify-content: center;
 }
 
+/* Default style for all game buttons */
 #gameButtons button {
   background-color: #222;
   color: #fff;
@@ -22,6 +24,7 @@
   font-family: 'Trebuchet MS', sans-serif;
 }
 
+/* Hover effect: neon green highlight */
 #gameButtons button:hover {
   background-color: #0f0;
   color: #000;
