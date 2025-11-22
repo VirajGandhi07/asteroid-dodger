@@ -1,0 +1,15 @@
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/bin/Debug/net8.0/PlayerManager
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/bin/Debug/net8.0/PlayerManager.deps.json
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/bin/Debug/net8.0/PlayerManager.runtimeconfig.json
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/bin/Debug/net8.0/PlayerManager.dll
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/bin/Debug/net8.0/PlayerManager.pdb
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/obj/Debug/net8.0/PlayerManager.GeneratedMSBuildEditorConfig.editorconfig
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/obj/Debug/net8.0/PlayerManager.AssemblyInfoInputs.cache
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/obj/Debug/net8.0/PlayerManager.AssemblyInfo.cs
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/obj/Debug/net8.0/PlayerManager.csproj.CoreCompileInputs.cache
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/obj/Debug/net8.0/PlayerManager.sourcelink.json
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/obj/Debug/net8.0/PlayerManager.dll
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/obj/Debug/net8.0/refint/PlayerManager.dll
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/obj/Debug/net8.0/PlayerManager.pdb
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/obj/Debug/net8.0/PlayerManager.genruntimeconfig.cache
+/home/vgubuntu/asteroid-dodger/DataManager/PlayerManager/PlayerManager/obj/Debug/net8.0/ref/PlayerManager.dll
