@@ -1,0 +1,15 @@
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/bin/Debug/net8.0/AsteroidManager
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/bin/Debug/net8.0/AsteroidManager.deps.json
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/bin/Debug/net8.0/AsteroidManager.runtimeconfig.json
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/bin/Debug/net8.0/AsteroidManager.dll
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/bin/Debug/net8.0/AsteroidManager.pdb
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/Debug/net8.0/AsteroidManager.GeneratedMSBuildEditorConfig.editorconfig
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/Debug/net8.0/AsteroidManager.AssemblyInfoInputs.cache
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/Debug/net8.0/AsteroidManager.AssemblyInfo.cs
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/Debug/net8.0/AsteroidManager.csproj.CoreCompileInputs.cache
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/Debug/net8.0/AsteroidManager.sourcelink.json
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/Debug/net8.0/AsteroidManager.dll
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/Debug/net8.0/refint/AsteroidManager.dll
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/Debug/net8.0/AsteroidManager.pdb
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/Debug/net8.0/AsteroidManager.genruntimeconfig.cache
+/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/Debug/net8.0/ref/AsteroidManager.dll
