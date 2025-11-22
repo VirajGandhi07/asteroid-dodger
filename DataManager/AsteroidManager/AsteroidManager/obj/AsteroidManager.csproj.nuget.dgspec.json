@@ -1,0 +1,66 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/AsteroidManager.csproj": {}
+  },
+  "projects": {
+    "/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/AsteroidManager.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/AsteroidManager.csproj",
+        "projectName": "AsteroidManager",
+        "projectPath": "/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/AsteroidManager.csproj",
+        "packagesPath": "/home/vgubuntu/.nuget/packages/",
+        "outputPath": "/home/vgubuntu/asteroid-dodger/DataManager/AsteroidManager/AsteroidManager/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/vgubuntu/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        }
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.415/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

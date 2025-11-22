@@ -1,0 +1,18 @@
+[
+  {
+    "Id": 1,
+    "Size": "Medium",
+    "Speed": 1,
+    "Material": "Crystal",
+    "Type": "Rare",
+    "SpawnRate": 92
+  },
+  {
+    "Id": 2,
+    "Size": "small",
+    "Speed": 5,
+    "Material": "Rock",
+    "Type": "Rare",
+    "SpawnRate": 20
+  }
+]
