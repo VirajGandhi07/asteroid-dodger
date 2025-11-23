@@ -25,8 +25,9 @@ namespace GameLauncher
             {
                 Console.WriteLine("\n=== MAIN MENU ===");
                 Console.WriteLine("1. Play");
-                Console.WriteLine("2. Read Instructions");
-                Console.WriteLine("3. Exit");
+                Console.WriteLine("2. Scoreboard");
+                Console.WriteLine("3. How to Play");
+                Console.WriteLine("4. Exit");
 
                 Console.Write("Choose an option: ");
                 string choice = Console.ReadLine()?.Trim() ?? "";
@@ -37,9 +38,12 @@ namespace GameLauncher
                         PlayMenu();
                         break;
                     case "2":
-                        ShowInstructions();
+                        ShowScoreboard();
                         break;
                     case "3":
+                        ShowInstructions();
+                        break;
+                    case "4":
                         Console.WriteLine("Exiting... Goodbye!");
                         return;
                     default:
@@ -306,6 +310,25 @@ namespace GameLauncher
             Console.WriteLine("Use arrow keys to dodge asteroids.");
             Console.WriteLine("Survive as long as possible!");
             Console.WriteLine("Scores will be saved automatically.");
+        }
+
+        // SCOREBOARD
+        static void ShowScoreboard()
+        {
+            Console.WriteLine("\n=== SCOREBOARD ===");
+            var top = playerService.GetTopScores();
+            if (top == null || top.Count == 0)
+            {
+                Console.WriteLine("No scores yet.");
+                return;
+            }
+
+            int rank = 1;
+            foreach (var p in top)
+            {
+                Console.WriteLine($"{rank}. {p.Name} - {p.HighScore}");
+                rank++;
+            }
         }
     }
 }
