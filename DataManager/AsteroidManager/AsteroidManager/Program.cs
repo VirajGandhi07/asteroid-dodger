@@ -65,16 +65,26 @@ namespace AsteroidManagerApp
         static void AddAsteroid(AsteroidService service)
         {
             var asteroid = new Asteroid();
-            Console.Write("Size (Small/Medium/Large): ");
-            asteroid.Size = Console.ReadLine() ?? "Medium";
-            Console.Write("Speed (1-10): ");
-            asteroid.Speed = int.TryParse(Console.ReadLine(), out var s) ? s : 5;
-            Console.Write("Material (Rock/Iron/Crystal): ");
-            asteroid.Material = Console.ReadLine() ?? "Rock";
-            Console.Write("Type (Normal/Rare/Boss): ");
-            asteroid.Type = Console.ReadLine() ?? "Normal";
-            Console.Write("Spawn Rate (10-100): ");
-            asteroid.SpawnRate = int.TryParse(Console.ReadLine(), out var r) ? r : 50;
+
+            asteroid.Size = GetValidatedInput(
+                "Size (Small/Medium/Large): ",
+                new string[] { "Small", "Medium", "Large" });
+
+            asteroid.Speed = GetValidatedInt(
+                "Speed (1-10): ",
+                1, 10);
+
+            asteroid.Material = GetValidatedInput(
+                "Material (Rock/Iron/Crystal): ",
+                new string[] { "Rock", "Iron", "Crystal" });
+
+            asteroid.Type = GetValidatedInput(
+                "Type (Normal/Rare/Boss): ",
+                new string[] { "Normal", "Rare", "Boss" });
+
+            asteroid.SpawnRate = GetValidatedInt(
+                "Spawn Rate (10-100): ",
+                10, 100);
 
             service.AddAsteroid(asteroid);
             Console.WriteLine("Asteroid added!");
@@ -83,48 +93,101 @@ namespace AsteroidManagerApp
         static void UpdateAsteroid(AsteroidService service)
         {
             Console.Write("Enter Asteroid ID to update: ");
-            if (int.TryParse(Console.ReadLine(), out var id))
+            string? idInput = Console.ReadLine();
+            if (!int.TryParse(idInput, out int id))
             {
-                var asteroid = service.Asteroids.FirstOrDefault(a => a.Id == id);
-                if (asteroid == null)
-                {
-                    Console.WriteLine("Asteroid not found.");
-                    return;
-                }
-
-                Console.Write($"Size ({asteroid.Size}): ");
-                var input = Console.ReadLine();
-                if (!string.IsNullOrWhiteSpace(input)) asteroid.Size = input;
-
-                Console.Write($"Speed ({asteroid.Speed}): ");
-                input = Console.ReadLine();
-                if (int.TryParse(input, out var speed)) asteroid.Speed = speed;
-
-                Console.Write($"Material ({asteroid.Material}): ");
-                input = Console.ReadLine();
-                if (!string.IsNullOrWhiteSpace(input)) asteroid.Material = input;
-
-                Console.Write($"Type ({asteroid.Type}): ");
-                input = Console.ReadLine();
-                if (!string.IsNullOrWhiteSpace(input)) asteroid.Type = input;
-
-                Console.Write($"Spawn Rate ({asteroid.SpawnRate}): ");
-                input = Console.ReadLine();
-                if (int.TryParse(input, out var rate)) asteroid.SpawnRate = rate;
-
-                service.UpdateAsteroid(asteroid);
-                Console.WriteLine("Asteroid updated!");
+                Console.WriteLine("Invalid ID.");
+                return;
             }
+
+            var asteroid = service.Asteroids.FirstOrDefault(a => a.Id == id);
+            if (asteroid == null)
+            {
+                Console.WriteLine("Asteroid not found.");
+                return;
+            }
+
+            asteroid.Size = GetValidatedInput(
+                $"Size ({asteroid.Size}): ",
+                new string[] { "Small", "Medium", "Large" },
+                asteroid.Size);
+
+            asteroid.Speed = GetValidatedInt(
+                $"Speed ({asteroid.Speed}): ",
+                1, 10, asteroid.Speed);
+
+            asteroid.Material = GetValidatedInput(
+                $"Material ({asteroid.Material}): ",
+                new string[] { "Rock", "Iron", "Crystal" },
+                asteroid.Material);
+
+            asteroid.Type = GetValidatedInput(
+                $"Type ({asteroid.Type}): ",
+                new string[] { "Normal", "Rare", "Boss" },
+                asteroid.Type);
+
+            asteroid.SpawnRate = GetValidatedInt(
+                $"Spawn Rate ({asteroid.SpawnRate}): ",
+                10, 100, asteroid.SpawnRate);
+
+            service.UpdateAsteroid(asteroid);
+            Console.WriteLine("Asteroid updated!");
         }
 
         static void DeleteAsteroid(AsteroidService service)
         {
             Console.Write("Enter Asteroid ID to delete: ");
-            if (int.TryParse(Console.ReadLine(), out var id))
+            string? idInput = Console.ReadLine();
+            if (int.TryParse(idInput, out int id))
             {
                 service.DeleteAsteroid(id);
                 Console.WriteLine("Asteroid deleted if existed.");
             }
+            else
+            {
+                Console.WriteLine("Invalid ID.");
+            }
+        }
+
+        // Helper Methods
+        static string GetValidatedInput(string prompt, string[] validOptions, string? currentValue = null)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine() ?? "";
+                if (string.IsNullOrWhiteSpace(input) && currentValue != null)
+                    return currentValue;
+
+                input = Capitalize(input);
+
+                if (validOptions.Contains(input))
+                    return input;
+
+                Console.WriteLine("Invalid input. Try again.");
+            }
+        }
+
+        static int GetValidatedInt(string prompt, int min, int max, int? currentValue = null)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine() ?? "";
+                if (string.IsNullOrWhiteSpace(input) && currentValue != null)
+                    return currentValue.Value;
+
+                if (int.TryParse(input, out int value) && value >= min && value <= max)
+                    return value;
+
+                Console.WriteLine($"Invalid input. Enter a number between {min} and {max}.");
+            }
+        }
+
+        static string Capitalize(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return input;
+            return char.ToUpper(input[0]) + input.Substring(1).ToLower();
         }
     }
 }

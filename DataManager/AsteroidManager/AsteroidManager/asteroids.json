@@ -14,5 +14,13 @@
     "Material": "Rock",
     "Type": "Rare",
     "SpawnRate": 20
+  },
+  {
+    "Id": 3,
+    "Size": "Small",
+    "Speed": 5,
+    "Material": "Rock",
+    "Type": "Normal",
+    "SpawnRate": 45
   }
 ]
