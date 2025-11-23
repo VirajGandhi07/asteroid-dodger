@@ -14,5 +14,13 @@
     "Material": "Iron",
     "Type": "Rare",
     "SpawnRate": 89
+  },
+  {
+    "Id": 3,
+    "Size": "Medium",
+    "Speed": 7,
+    "Material": "Rock",
+    "Type": "Rare",
+    "SpawnRate": 56
   }
 ]
