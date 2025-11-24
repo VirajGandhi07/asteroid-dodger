@@ -3,6 +3,7 @@ using System.Linq;
 using PlayerManagerApp.Services;          // Player services
 using AsteroidManagerApp.Services;        // Asteroid services
 using AsteroidManagerApp.Models;          // Asteroid model
+using GameLauncher.DataAnalysis;
 
 namespace GameLauncher
 {
@@ -29,6 +30,7 @@ namespace GameLauncher
                 Console.WriteLine("3. How to Play");
                     Console.WriteLine("4. Exit");
                     Console.WriteLine("5. Generate Sample Data");
+                    Console.WriteLine("6. Reports");
 
                 Console.Write("Choose an option: ");
                 string choice = Console.ReadLine()?.Trim() ?? "";
@@ -49,6 +51,10 @@ namespace GameLauncher
                         return;
                     case "5":
                         RandomDataGenerator.GenerateSampleDataInteractive(playerService, asteroidService);
+                        break;
+                    case "6":
+                        var report = StatisticsHelper.GenerateReport(playerService.Players, asteroidService.Asteroids);
+                        ReportPrinter.PrintReport(report);
                         break;
                     default:
                         Console.WriteLine("Invalid choice. Try again.");
