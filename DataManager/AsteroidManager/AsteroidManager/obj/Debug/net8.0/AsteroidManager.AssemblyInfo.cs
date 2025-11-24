@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AsteroidManager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f1d6fc2ac73d13a3e70312e3b785be564b9f788b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9d1dfaa9ca1ed73edd90952a09fd387142150adf")]
 [assembly: System.Reflection.AssemblyProductAttribute("AsteroidManager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AsteroidManager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
