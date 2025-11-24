@@ -27,7 +27,8 @@ namespace GameLauncher
                 Console.WriteLine("1. Play");
                 Console.WriteLine("2. Scoreboard");
                 Console.WriteLine("3. How to Play");
-                Console.WriteLine("4. Exit");
+                    Console.WriteLine("4. Exit");
+                    Console.WriteLine("5. Generate Sample Data");
 
                 Console.Write("Choose an option: ");
                 string choice = Console.ReadLine()?.Trim() ?? "";
@@ -46,6 +47,9 @@ namespace GameLauncher
                     case "4":
                         Console.WriteLine("Exiting... Goodbye!");
                         return;
+                    case "5":
+                        RandomDataGenerator.GenerateSampleDataInteractive(playerService, asteroidService);
+                        break;
                     default:
                         Console.WriteLine("Invalid choice. Try again.");
                         break;
@@ -300,7 +304,7 @@ namespace GameLauncher
         static void StartGame()
         {
             Console.WriteLine("\n*** Starting the game... ***");
-            Console.WriteLine("(This will later launch your HTML/JS asteroid dodger.)\n");
+            Console.WriteLine("(This will later launch the HTML/JS asteroid dodger.)\n");
         }
 
         // INSTRUCTIONS
