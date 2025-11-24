@@ -26,11 +26,10 @@ namespace GameLauncher
             {
                 Console.WriteLine("\n=== MAIN MENU ===");
                 Console.WriteLine("1. Play");
-                Console.WriteLine("2. Scoreboard");
-                Console.WriteLine("3. How to Play");
-                    Console.WriteLine("4. Exit");
-                    Console.WriteLine("5. Generate Sample Data");
-                    Console.WriteLine("6. Reports");
+                Console.WriteLine("2. Reports");
+                Console.WriteLine("3. Generate Sample Data");
+                Console.WriteLine("4. How to Play");
+                Console.WriteLine("5. Exit");
 
                 Console.Write("Choose an option: ");
                 string choice = Console.ReadLine()?.Trim() ?? "";
@@ -41,21 +40,18 @@ namespace GameLauncher
                         PlayMenu();
                         break;
                     case "2":
-                        ShowScoreboard();
-                        break;
-                    case "3":
-                        ShowInstructions();
-                        break;
-                    case "4":
-                        Console.WriteLine("Exiting... Goodbye!");
-                        return;
-                    case "5":
-                        RandomDataGenerator.GenerateSampleDataInteractive(playerService, asteroidService);
-                        break;
-                    case "6":
                         var report = StatisticsHelper.GenerateReport(playerService.Players, asteroidService.Asteroids);
                         ReportPrinter.PrintReport(report);
                         break;
+                    case "3":
+                        RandomDataGenerator.GenerateSampleDataInteractive(playerService, asteroidService);
+                        break;
+                    case "4":
+                        ShowInstructions();
+                        break;
+                    case "5":
+                        Console.WriteLine("Exiting... Goodbye!");
+                        return;
                     default:
                         Console.WriteLine("Invalid choice. Try again.");
                         break;
@@ -71,8 +67,9 @@ namespace GameLauncher
                 Console.WriteLine("\n=== PLAY MENU ===");
                 Console.WriteLine("1. Existing Player");
                 Console.WriteLine("2. New Player");
-                Console.WriteLine("3. Asteroids");
-                Console.WriteLine("4. Back");
+                Console.WriteLine("3. Scoreboard");
+                Console.WriteLine("4. Asteroids");
+                Console.WriteLine("5. Back");
 
                 Console.Write("Choose an option: ");
                 string choice = Console.ReadLine()?.Trim() ?? "";
@@ -86,9 +83,12 @@ namespace GameLauncher
                         NewPlayerFlow();
                         break;
                     case "3":
-                        AsteroidMenu();
+                        ShowScoreboard();
                         break;
                     case "4":
+                        AsteroidMenu();
+                        break;
+                    case "5":
                         return;
                     default:
                         Console.WriteLine("Invalid option. Try again.");
@@ -259,13 +259,13 @@ namespace GameLauncher
             Console.WriteLine("Asteroid deleted if existed.");
         }
 
-        // Helper: print asteroids
+        // Helper: print asteroids (refactored to use LINQ)
         static void PrintAsteroids()
         {
             if (!asteroidService.Asteroids.Any())
                 Console.WriteLine("No asteroids available.");
             else
-                asteroidService.Asteroids.ForEach(a => Console.WriteLine(a));
+                Console.WriteLine(string.Join(Environment.NewLine, asteroidService.Asteroids.Select(a => a.ToString())));
         }
 
         // INPUT VALIDATION
