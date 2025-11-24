@@ -19,6 +19,13 @@ namespace PlayerManagerApp.Services
             SavePlayers();
         }
 
+        // Overload to add a player with an initial high score (used by data generator)
+        public void AddPlayer(string name, int highScore)
+        {
+            Players.Add(new Player { Name = name, HighScore = highScore });
+            SavePlayers();
+        }
+
         public void SavePlayers()
         {
             var json = JsonSerializer.Serialize(Players, new JsonSerializerOptions { WriteIndented = true });
