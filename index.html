@@ -7,6 +7,87 @@
 
   <!-- Master CSS file (imports all others) -->
   <link rel="stylesheet" href="./css/main.css">
+  
+  <!-- Critical inline CSS for menu visibility - MUST be after main.css -->
+  <style>
+    /* Override to ensure menus hide/show properly */
+    #mainMenu, #playMenu, #scoreboardMenu, #asteroidsMenu, 
+    #asteroidsList, #generateMenu, #instructionsModal {
+      display: none !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    
+    #mainMenu.active, #playMenu.active, #scoreboardMenu.active, 
+    #asteroidsMenu.active, #asteroidsList.active, #generateMenu.active, 
+    #instructionsModal.active {
+      display: flex !important;
+    }
+    
+    /* Ensure menu panel styling */
+    .menu-panel {
+      background: #111;
+      border: 3px solid #0f0;
+      border-radius: 15px;
+      padding: 40px;
+      max-width: 550px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.6), inset 0 0 20px rgba(0, 255, 0, 0.1);
+      color: #fff;
+    }
+    
+    .menu-panel h2 {
+      font-size: 2em;
+      margin-bottom: 30px;
+      text-shadow: 0 0 10px #0f0;
+      color: #0f0;
+      font-family: 'Trebuchet MS', sans-serif;
+    }
+    
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .menu-btn {
+      background: #222;
+      color: #0f0;
+      border: 2px solid #0f0;
+      padding: 15px 25px;
+      font-size: 1.1em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
+      font-family: 'Trebuchet MS', sans-serif;
+      width: 100%;
+      display: block;
+    }
+    
+    .menu-btn:hover {
+      background: #0f0;
+      color: #000;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.9), inset 0 0 10px rgba(0, 255, 0, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .menu-btn:active {
+      transform: translateY(0);
+    }
+  </style>
 </head>
 
 <body>
@@ -15,20 +96,20 @@
   <h1 class="game-title">Asteroid Dodger</h1>
 
 
-  <!-- GAME CANVAS -->
-  <canvas id="gameCanvas" width="800" height="400"></canvas>
+  <!-- GAME CANVAS (hidden until game starts) -->
+  <canvas id="gameCanvas" width="800" height="400" style="display:none;"></canvas>
 
 
-  <!-- VOLUME CONTROLS -->
-  <div id="volumeControls" aria-label="Volume Controls">
+  <!-- VOLUME CONTROLS (hidden until game starts) -->
+  <div id="volumeControls" aria-label="Volume Controls" style="display:none;">
     <button id="volDown" title="Decrease Volume">🔉</button>
     <button id="volUp" title="Increase Volume">🔊</button>
     <button id="muteBtn" title="Mute Sound">🔇</button>
   </div>
 
 
-  <!-- GAME BUTTONS -->
-  <div id="gameButtons" class="game-buttons">
+  <!-- GAME BUTTONS (hidden until game starts) -->
+  <div id="gameButtons" class="game-buttons" style="display:none;">
     <button id="pauseBtn">Pause Game</button>
     <button id="newGameBtn">New Game</button>
     <button id="resetScoreBtn">Reset High Score</button>
@@ -36,38 +117,102 @@
   </div>
 
 
-  <!-- START MENU OVERLAY -->
-  <div id="startMenu" role="dialog" aria-label="Start Menu">
-    <div class="start-panel">
-      <h2>Welcome to Asteroid Dodger!</h2>
-
-      <button id="startGameBtn">Start Game</button>
-      <button id="startInstructionsBtn">Read Instructions</button>
+  <!-- MAIN MENU OVERLAY -->
+  <div id="mainMenu" role="dialog" aria-label="Main Menu" class="menu-overlay active">
+    <div class="menu-panel">
+      <h2>Asteroid Dodger</h2>
+      <div class="menu-buttons">
+        <button class="menu-btn" data-action="play">1. Play</button>
+        <button class="menu-btn" data-action="scoreboard">2. Scoreboard</button>
+        <button class="menu-btn" data-action="generate">3. Generate Sample Data</button>
+        <button class="menu-btn" data-action="instructions">4. How to Play</button>
+        <button class="menu-btn" data-action="exit">5. Exit</button>
+      </div>
     </div>
   </div>
 
+  <!-- PLAY MENU OVERLAY -->
+  <div id="playMenu" role="dialog" aria-label="Play Menu" class="menu-overlay">
+    <div class="menu-panel">
+      <h2>Play Menu</h2>
+      <div class="menu-buttons">
+        <button class="menu-btn" data-action="existing-player">1. Existing Player</button>
+        <button class="menu-btn" data-action="new-player">2. New Player</button>
+        <button class="menu-btn" data-action="asteroids">3. Asteroids</button>
+        <button class="menu-btn" data-action="back">4. Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCOREBOARD OVERLAY -->
+  <div id="scoreboardMenu" role="dialog" aria-label="Scoreboard" class="menu-overlay">
+    <div class="menu-panel">
+      <h2>Scoreboard</h2>
+      <div id="scoreboardList" class="scoreboard-list"></div>
+      <button class="menu-btn" data-action="back-scoreboard">Back</button>
+    </div>
+  </div>
+
+  <!-- ASTEROIDS MANAGER OVERLAY -->
+  <div id="asteroidsMenu" role="dialog" aria-label="Asteroid Manager" class="menu-overlay">
+    <div class="menu-panel">
+      <h2>Asteroids</h2>
+      <div class="menu-buttons">
+        <button class="menu-btn" data-action="list-asteroids">1. List Asteroids</button>
+        <button class="menu-btn" data-action="add-asteroid">2. Add Asteroid</button>
+        <button class="menu-btn" data-action="random-asteroid">3. Add Random Asteroid</button>
+        <button class="menu-btn" data-action="back-asteroids">4. Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASTEROIDS LIST OVERLAY -->
+  <div id="asteroidsList" role="dialog" aria-label="Asteroids List" class="menu-overlay">
+    <div class="menu-panel">
+      <h2>Asteroids List</h2>
+      <div id="asteroidsListContent" class="asteroids-list-content" style="max-height: 300px; overflow-y: auto;"></div>
+      <button class="menu-btn" data-action="back-list">Back</button>
+    </div>
+  </div>
+
+  <!-- GENERATE DATA OVERLAY -->
+  <div id="generateMenu" role="dialog" aria-label="Generate Data" class="menu-overlay">
+    <div class="menu-panel">
+      <h2>Generate Sample Data</h2>
+      <div class="form-group">
+        <label for="playerCount">Number of players:</label>
+        <input type="number" id="playerCount" value="5" min="1" max="100">
+      </div>
+      <div class="form-group">
+        <label for="asteroidCount">Number of asteroids:</label>
+        <input type="number" id="asteroidCount" value="10" min="0" max="100">
+      </div>
+      <button class="menu-btn" data-action="generate-confirm">Generate</button>
+      <button class="menu-btn" data-action="back-generate">Cancel</button>
+    </div>
+  </div>
 
   <!-- INSTRUCTIONS MODAL -->
-  <div id="instructionsModal" class="modal" role="dialog" aria-modal="true">
-    <div class="modal-content">
-
+  <div id="instructionsModal" class="menu-overlay">
+    <div class="menu-panel">
       <h2>How to Play</h2>
-
-      <ul>
-        <li>Use <strong>Arrow Up</strong> to move up</li>
-        <li>Use <strong>Arrow Down</strong> to move down</li>
-        <li>Avoid all asteroids</li>
-        <li>Survive as long as possible to increase high score</li>
-        <li>Press <strong>P</strong> to pause/resume</li>
-        <li>Press <strong>R</strong> to restart after Game Over</li>
-      </ul>
-
-      <button id="closeInstructionsBtn" class="close-btn">Close</button>
+      <div style="text-align: left; margin: 20px 0;">
+        <ul>
+          <li>Use <strong>Arrow Up</strong> to move up</li>
+          <li>Use <strong>Arrow Down</strong> to move down</li>
+          <li>Avoid all asteroids</li>
+          <li>Survive as long as possible to increase high score</li>
+          <li>Press <strong>P</strong> to pause/resume</li>
+          <li>Press <strong>R</strong> to restart after Game Over</li>
+        </ul>
+      </div>
+      <button class="menu-btn" data-action="back-instructions">Back</button>
     </div>
   </div>
 
 
   <!-- MAIN GAME SCRIPT -->
+  <script type="module" src="js/menu.js"></script>
   <script type="module" src="js/main.js"></script>
 
 </body>

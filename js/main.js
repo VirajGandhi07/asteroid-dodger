@@ -6,6 +6,8 @@ import { draw as renderDraw } from './renderer.js';
 import { isColliding, getAsteroidSpawnInterval } from './utils.js';
 import createGame from './game.js';
 import { STAR_COUNT, STAR_SPEED, PLAYER_SCALE } from './config.js';
+import * as api from './api.js';
+import { setGameInstance, startGame, onGameOver as menuOnGameOver } from './menu.js';
 
 let ui = null;
 // Track whether opening instructions caused a pause so we only resume when appropriate
@@ -75,8 +77,14 @@ game = createGame({
   bgMusic,
   explosionSound,
   getMuted,
-  stars
+  stars,
+  onGameOver: (score) => {
+    menuOnGameOver(score);
+  }
 });
+
+// Register game with menu system
+setGameInstance(game);
 
 // Initialize player input and position with game callbacks
 initPlayer({
@@ -100,18 +108,14 @@ ui = initUI({
     // Pause the game and audio when opening instructions, but only if the game was running.
     if (game.isStarted() && !game.getState().paused) {
       game.pause();
-      instructionsPausedByUI = true;
       if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Resume Game');
       bgMusic.pause();
-    } else {
-      instructionsPausedByUI = false;
     }
   },
   onCloseInstructions: () => {
     // Resume game/audio only if UI paused it when opening instructions
-    if (instructionsPausedByUI) {
+    if (game.isStarted() && game.getState().paused) {
       game.resume();
-      instructionsPausedByUI = false;
       if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Pause Game');
       if (game.isStarted()) bgMusic.play();
     }
@@ -121,4 +125,5 @@ ui = initUI({
   }
 });
 
-// Start game loop (game.start() will be called by UI when Start pressed)
+// Start with menu system
+startGame();
