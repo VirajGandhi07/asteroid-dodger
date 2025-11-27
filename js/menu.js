@@ -13,6 +13,7 @@ const menuElements = {
   scoreboard: document.getElementById('scoreboardMenu'),
   asteroids: document.getElementById('asteroidsMenu'),
   asteroidsList: document.getElementById('asteroidsList'),
+  playersList: document.getElementById('playersListMenu'),
   generate: document.getElementById('generateMenu'),
   instructions: document.getElementById('instructionsModal')
 };
@@ -21,6 +22,104 @@ const menuElements = {
 const gameCanvas = document.getElementById('gameCanvas');
 const gameButtons = document.getElementById('gameButtons');
 const volumeControls = document.getElementById('volumeControls');
+
+// Modal element refs - will be initialized when DOM is ready
+let inputModal, confirmModal, alertModal;
+
+// Dialog state
+let inputResolve = null;
+let confirmResolve = null;
+
+// Initialize modals and their event listeners
+function initializeModals() {
+  inputModal = document.getElementById('inputModal');
+  confirmModal = document.getElementById('confirmModal');
+  alertModal = document.getElementById('alertModal');
+
+  // Setup input modal
+  document.getElementById('inputModalOk').addEventListener('click', () => {
+    const value = document.getElementById('inputModalField').value;
+    inputModal.classList.remove('active');
+    if (inputResolve) {
+      inputResolve(value);
+      inputResolve = null;
+    }
+  });
+
+  document.getElementById('inputModalCancel').addEventListener('click', () => {
+    inputModal.classList.remove('active');
+    if (inputResolve) {
+      inputResolve(null);
+      inputResolve = null;
+    }
+  });
+
+  // Setup confirm modal
+  document.getElementById('confirmModalYes').addEventListener('click', () => {
+    confirmModal.classList.remove('active');
+    if (confirmResolve) {
+      confirmResolve(true);
+      confirmResolve = null;
+    }
+  });
+
+  document.getElementById('confirmModalNo').addEventListener('click', () => {
+    confirmModal.classList.remove('active');
+    if (confirmResolve) {
+      confirmResolve(false);
+      confirmResolve = null;
+    }
+  });
+
+  // Setup alert modal
+  document.getElementById('alertModalOk').addEventListener('click', () => {
+    alertModal.classList.remove('active');
+  });
+}
+
+// Call initialization when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeModals);
+} else {
+  initializeModals();
+}
+
+// Custom prompt function (returns Promise)
+function showPrompt(title, defaultValue = '') {
+  return new Promise((resolve) => {
+    document.getElementById('inputModalTitle').textContent = title;
+    document.getElementById('inputModalField').value = defaultValue;
+    inputResolve = resolve;
+    inputModal.classList.add('active');
+    document.getElementById('inputModalField').focus();
+  });
+}
+
+// Custom confirm function (returns Promise)
+function showConfirm(title, message) {
+  return new Promise((resolve) => {
+    document.getElementById('confirmModalTitle').textContent = title;
+    document.getElementById('confirmModalMessage').textContent = message;
+    confirmResolve = resolve;
+    confirmModal.classList.add('active');
+  });
+}
+
+// Custom alert function (returns Promise)
+function showAlert(title, message) {
+  return new Promise((resolve) => {
+    document.getElementById('alertModalTitle').textContent = title;
+    document.getElementById('alertModalMessage').textContent = message;
+    const okBtn = document.getElementById('alertModalOk');
+    const handler = () => {
+      alertModal.classList.remove('active');
+      okBtn.removeEventListener('click', handler);
+      resolve();
+    };
+    okBtn.addEventListener('click', handler);
+    alertModal.classList.add('active');
+  });
+}
 
 // Show menu and hide others; also hide game UI
 function showMenu(menuName) {
@@ -83,6 +182,10 @@ function handlePlayMenuAction(action) {
       break;
     case 'new-player':
       promptNewPlayer();
+      break;
+    case 'list-players':
+      previousMenu = 'play';
+      loadAndShowPlayersList();
       break;
     case 'asteroids':
       previousMenu = 'play';
@@ -150,57 +253,131 @@ async function loadAndShowAsteroidsList() {
   }
 }
 
+// Load and show players list with update/delete options
+async function loadAndShowPlayersList() {
+  try {
+    const players = await api.getAllPlayers();
+    const list = document.getElementById('playersListContent');
+    if (players.length === 0) {
+      list.innerHTML = '<p>No players yet.</p>';
+    } else {
+      list.innerHTML = players.map(p => 
+        `<div class="player-item">
+          <span class="player-name">${p.name} (Score: ${p.highScore})</span>
+          <div class="player-actions">
+            <button class="player-action-btn" onclick="updatePlayerName('${p.name}')">Edit</button>
+            <button class="player-action-btn" onclick="deletePlayer('${p.name}')">Delete</button>
+          </div>
+        </div>`
+      ).join('');
+    }
+    showMenu('playersList');
+  } catch (err) {
+    console.error('Failed to load players:', err);
+    showAlert('Error', 'Failed to load players');
+  }
+}
+
+// Update player name
+async function updatePlayerName(oldName) {
+  const newName = await showPrompt(`Enter new name for "${oldName}":`, oldName);
+  if (!newName || !newName.trim()) return;
+  if (newName.trim() === oldName) return;
+  
+  const trimmedNewName = newName.trim();
+  
+  // Check if new name already exists
+  try {
+    const players = await api.getAllPlayers();
+    if (players.some(p => p.name.toLowerCase() === trimmedNewName.toLowerCase())) {
+      await showAlert('Error', `Player "${trimmedNewName}" already exists!`);
+      return;
+    }
+    
+    // Find the old player
+    const oldPlayer = players.find(p => p.name.toLowerCase() === oldName.toLowerCase());
+    if (!oldPlayer) {
+      await showAlert('Error', 'Player not found!');
+      return;
+    }
+    
+    // Create new player with updated name (replaces old entry)
+    await api.postScore(trimmedNewName, oldPlayer.highScore);
+    
+    // Delete old player entry
+    await api.deletePlayer(oldName);
+    
+    await showAlert('Success', `Player renamed from "${oldName}" to "${trimmedNewName}"!`);
+    loadAndShowPlayersList();
+  } catch (err) {
+    console.error('Failed to update player:', err);
+    await showAlert('Error', 'Failed to update player');
+  }
+}
+
+// Delete player
+async function deletePlayer(playerName) {
+  const confirmed = await showConfirm('Confirm Delete', `Are you sure you want to delete "${playerName}"?\nThis will also delete their score from the scoreboard.`);
+  if (!confirmed) return;
+  
+  try {
+    await api.deletePlayer(playerName);
+    await showAlert('Success', `Player "${playerName}" deleted!`);
+    loadAndShowPlayersList();
+  } catch (err) {
+    console.error('Failed to delete player:', err);
+    await showAlert('Error', 'Failed to delete player');
+  }
+}
+
 // Prompt for existing player name and start game
-function promptExistingPlayer() {
-  const name = prompt('Enter player name:');
+async function promptExistingPlayer() {
+  const name = await showPrompt('Enter player name:');
   if (name && name.trim()) {
     const playerName = name.trim();
     // Check if player exists by fetching top scores
-    api.getTopScores()
-      .then(players => {
-        const playerExists = players.some(p => p.name.toLowerCase() === playerName.toLowerCase());
-        if (playerExists) {
-          currentPlayerName = playerName;
-          hideMenuAndStartGame();
-        } else {
-          alert(`Player "${playerName}" does not exist. Please create a new player.`);
-        }
-      })
-      .catch(err => {
-        console.error('Error checking player:', err);
-        alert('Error checking player. Please try again.');
-      });
+    try {
+      const players = await api.getTopScores();
+      const playerExists = players.some(p => p.name.toLowerCase() === playerName.toLowerCase());
+      if (playerExists) {
+        currentPlayerName = playerName;
+        hideMenuAndStartGame();
+      } else {
+        await showAlert('Player Not Found', `Player "${playerName}" does not exist. Please create a new player.`);
+      }
+    } catch (err) {
+      console.error('Error checking player:', err);
+      await showAlert('Error', 'Error checking player. Please try again.');
+    }
   }
 }
 
 // Prompt for new player name and start game
-function promptNewPlayer() {
-  const name = prompt('Enter new player name:');
+async function promptNewPlayer() {
+  const name = await showPrompt('Enter new player name:');
   if (name && name.trim()) {
     const playerName = name.trim();
     // Check if player already exists
-    api.getTopScores()
-      .then(players => {
-        const playerExists = players.some(p => p.name.toLowerCase() === playerName.toLowerCase());
-        if (playerExists) {
-          alert(`Player "${playerName}" already exists. Please use "Existing Player" to continue.`);
-        } else {
-          currentPlayerName = playerName;
-          // Post initial score of 0 to create the player
-          api.postScore(playerName, 0)
-            .then(() => {
-              hideMenuAndStartGame();
-            })
-            .catch(err => {
-              console.error('Error creating player:', err);
-              alert('Error creating player. Please try again.');
-            });
+    try {
+      const players = await api.getTopScores();
+      const playerExists = players.some(p => p.name.toLowerCase() === playerName.toLowerCase());
+      if (playerExists) {
+        await showAlert('Player Exists', `Player "${playerName}" already exists. Please use "Existing Player" to continue.`);
+      } else {
+        currentPlayerName = playerName;
+        // Post initial score of 0 to create the player
+        try {
+          await api.postScore(playerName, 0);
+          hideMenuAndStartGame();
+        } catch (err) {
+          console.error('Error creating player:', err);
+          await showAlert('Error', 'Error creating player. Please try again.');
         }
-      })
-      .catch(err => {
-        console.error('Error checking player:', err);
-        alert('Error checking player. Please try again.');
-      });
+      }
+    } catch (err) {
+      console.error('Error checking player:', err);
+      await showAlert('Error', 'Error checking player. Please try again.');
+    }
   }
 }
 
@@ -213,28 +390,27 @@ function hideMenuAndStartGame() {
 }
 
 // Prompt to add asteroid manually
-function promptAddAsteroid() {
-  const size = prompt('Enter size (Small/Medium/Large):');
+async function promptAddAsteroid() {
+  const size = await showPrompt('Enter size (Small/Medium/Large):');
   if (!size) return;
-  const speed = parseInt(prompt('Enter speed (1-10):'));
+  const speed = parseInt(await showPrompt('Enter speed (1-10):'));
   if (isNaN(speed)) return;
-  const material = prompt('Enter material (Rock/Iron/Crystal):');
+  const material = await showPrompt('Enter material (Rock/Iron/Crystal):');
   if (!material) return;
-  const type = prompt('Enter type (Normal/Rare/Boss):');
+  const type = await showPrompt('Enter type (Normal/Rare/Boss):');
   if (!type) return;
-  const spawnRate = parseInt(prompt('Enter spawn rate (1-100):'));
+  const spawnRate = parseInt(await showPrompt('Enter spawn rate (1-100):'));
   if (isNaN(spawnRate)) return;
 
   const asteroid = { size, speed, material, type, spawnRate };
-  api.postAsteroid(asteroid)
-    .then(() => {
-      alert('Asteroid added!');
-      loadAndShowAsteroidsList();
-    })
-    .catch(err => {
-      console.error('Failed to add asteroid:', err);
-      alert('Failed to add asteroid');
-    });
+  try {
+    await api.postAsteroid(asteroid);
+    await showAlert('Success', 'Asteroid added!');
+    loadAndShowAsteroidsList();
+  } catch (err) {
+    console.error('Failed to add asteroid:', err);
+    await showAlert('Error', 'Failed to add asteroid');
+  }
 }
 
 // Add random asteroid
@@ -313,6 +489,7 @@ document.querySelectorAll('[data-action]').forEach(btn => {
     else if (currentMenu === 'asteroids') handleAsteroidsMenuAction(action);
     else if (action === 'back-scoreboard') showMenu('main');
     else if (action === 'back-asteroids') showMenu('play');
+    else if (action === 'back-players-list') showMenu('play');
     else if (action === 'back-list') showMenu('asteroids');
     else if (action === 'back-generate') showMenu('main');
     else if (action === 'back-instructions') {
@@ -345,3 +522,7 @@ export function onGameOver(score) {
     showMenu('main');
   }
 }
+
+// Expose functions to global scope for onclick handlers
+window.updatePlayerName = updatePlayerName;
+window.deletePlayer = deletePlayer;

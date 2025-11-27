@@ -27,6 +27,16 @@ namespace PlayerManagerApp.Services
             SavePlayers();
         }
 
+        public void DeletePlayer(string name)
+        {
+            var player = Players.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (player != null)
+            {
+                Players.Remove(player);
+                SavePlayers();
+            }
+        }
+
         public void SavePlayers()
         {
             var path = GetSharedFilePath("players.json");

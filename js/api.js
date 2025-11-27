@@ -6,6 +6,12 @@ export async function getTopScores() {
   return res.json();
 }
 
+export async function getAllPlayers() {
+  const res = await fetch(`${API_BASE}/players`);
+  if (!res.ok) throw new Error('Failed to fetch all players');
+  return res.json();
+}
+
 export async function postScore(name, highScore) {
   const res = await fetch(`${API_BASE}/players`, {
     method: 'POST',
@@ -13,6 +19,14 @@ export async function postScore(name, highScore) {
     body: JSON.stringify({ name, highScore })
   });
   if (!res.ok) throw new Error('Failed to post score');
+}
+
+export async function deletePlayer(name) {
+  const res = await fetch(`${API_BASE}/players/${encodeURIComponent(name)}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) throw new Error('Failed to delete player');
 }
 
 export async function getAsteroids() {
