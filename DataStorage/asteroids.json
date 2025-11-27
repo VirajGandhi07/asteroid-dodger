@@ -110,5 +110,21 @@
     "Material": "Rock",
     "Type": "Rare",
     "SpawnRate": 20
+  },
+  {
+    "Id": 15,
+    "Size": "Large",
+    "Speed": 7,
+    "Material": "Iron",
+    "Type": "Rare",
+    "SpawnRate": 61
+  },
+  {
+    "Id": 16,
+    "Size": "Large",
+    "Speed": 5,
+    "Material": "Iron",
+    "Type": "Normal",
+    "SpawnRate": 83
   }
 ]

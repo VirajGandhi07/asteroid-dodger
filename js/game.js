@@ -27,6 +27,9 @@ export default function createGame(deps) {
   let asteroidSpawnTimer = 0; // Timer for asteroid spawning
   let rafId = null;        // RequestAnimationFrame ID
 
+  // onGameOver(score) optional callback
+  const onGameOver = deps.onGameOver;
+
   function update(deltaTime) {
     if (gameOver || paused || !gameStarted) return; // Skip update if not active
     elapsedTime += deltaTime; // Increase survival time
@@ -40,7 +43,12 @@ export default function createGame(deps) {
     // Check collisions
     for (let a of asteroids) {
       if (isColliding(player, a)) {
-        gameOver = true;
+        // mark game over and notify once
+        if (!gameOver) {
+          gameOver = true;
+
+          try { onGameOver && onGameOver(Math.round(elapsedTime)); } catch { }
+        }
 
         explosionSound.currentTime = 0; // Play explosion
         explosionSound.volume = getMuted() ? 0 : bgMusic.volume;
