@@ -37,6 +37,13 @@ app.MapPost("/players", async (PlayerService ps, HttpRequest req) =>
     return Results.Ok();
 });
 
+app.MapDelete("/players/{name}", (PlayerService ps, string name) =>
+{
+    if (string.IsNullOrWhiteSpace(name)) return Results.BadRequest();
+    ps.DeletePlayer(name);
+    return Results.Ok();
+});
+
 app.MapGet("/asteroids", (AsteroidService asvc) => Results.Ok(asvc.Asteroids));
 
 app.MapPost("/asteroids", async (AsteroidService asvc, HttpRequest req) =>

@@ -126,5 +126,93 @@
     "Material": "Iron",
     "Type": "Normal",
     "SpawnRate": 83
+  },
+  {
+    "Id": 17,
+    "Size": "Small",
+    "Speed": 9,
+    "Material": "Crystal",
+    "Type": "Boss",
+    "SpawnRate": 50
+  },
+  {
+    "Id": 18,
+    "Size": "Small",
+    "Speed": 10,
+    "Material": "Iron",
+    "Type": "Normal",
+    "SpawnRate": 7
+  },
+  {
+    "Id": 19,
+    "Size": "Large",
+    "Speed": 3,
+    "Material": "Iron",
+    "Type": "Boss",
+    "SpawnRate": 78
+  },
+  {
+    "Id": 20,
+    "Size": "Small",
+    "Speed": 7,
+    "Material": "Crystal",
+    "Type": "Boss",
+    "SpawnRate": 80
+  },
+  {
+    "Id": 21,
+    "Size": "Small",
+    "Speed": 9,
+    "Material": "Rock",
+    "Type": "Normal",
+    "SpawnRate": 96
+  },
+  {
+    "Id": 22,
+    "Size": "Small",
+    "Speed": 4,
+    "Material": "Iron",
+    "Type": "Boss",
+    "SpawnRate": 76
+  },
+  {
+    "Id": 23,
+    "Size": "Large",
+    "Speed": 8,
+    "Material": "Iron",
+    "Type": "Normal",
+    "SpawnRate": 90
+  },
+  {
+    "Id": 24,
+    "Size": "Medium",
+    "Speed": 3,
+    "Material": "Crystal",
+    "Type": "Rare",
+    "SpawnRate": 48
+  },
+  {
+    "Id": 25,
+    "Size": "Small",
+    "Speed": 8,
+    "Material": "Iron",
+    "Type": "Boss",
+    "SpawnRate": 88
+  },
+  {
+    "Id": 26,
+    "Size": "Small",
+    "Speed": 2,
+    "Material": "Iron",
+    "Type": "Boss",
+    "SpawnRate": 6
+  },
+  {
+    "Id": 27,
+    "Size": "Large",
+    "Speed": 1,
+    "Material": "Crystal",
+    "Type": "Normal",
+    "SpawnRate": 30
   }
 ]

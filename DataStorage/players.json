@@ -1,9 +1,5 @@
 [
   {
-    "Name": "Viraj",
-    "HighScore": 0
-  },
-  {
     "Name": "Riley Knight",
     "HighScore": 7
   },
@@ -20,19 +16,23 @@
     "HighScore": 49
   },
   {
-    "Name": "Player",
-    "HighScore": 9
-  },
-  {
     "Name": "Viraj",
     "HighScore": 9
   },
   {
-    "Name": "abc",
-    "HighScore": 12
+    "Name": "Viraj",
+    "HighScore": 78
   },
   {
-    "Name": "abc",
-    "HighScore": 78
+    "Name": "Player1",
+    "HighScore": 52
+  },
+  {
+    "Name": "Player2",
+    "HighScore": 0
+  },
+  {
+    "Name": "NewPlayer",
+    "HighScore": 0
   }
 ]
