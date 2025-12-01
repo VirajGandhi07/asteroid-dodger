@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API Test</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #222; color: #0f0; }
+    button { padding: 10px; margin: 5px; background: #0f0; color: #000; border: none; cursor: pointer; }
+    #output { border: 1px solid #0f0; padding: 10px; margin-top: 10px; white-space: pre-wrap; min-height: 200px; overflow-y: auto; max-height: 400px; }
+  </style>
+</head>
+<body>
+  <h1>API Test</h1>
+  <button onclick="testGetAllPlayers()">Test GET /players</button>
+  <button onclick="testAddPlayer()">Test POST /players</button>
+  <button onclick="testTopScores()">Test GET /players/top</button>
+  <button onclick="clearLog()">Clear Log</button>
+  <div id="output"></div>
+
+  <script type="module">
+    const API_BASE = 'http://localhost:5000';
+    const log = document.getElementById('output');
+
+    function print(msg) {
+      log.textContent += msg + '\n';
+      log.scrollTop = log.scrollHeight;
+      console.log(msg);
+    }
+
+    function clearLog() {
+      log.textContent = '';
+    }
+
+    async function getAllPlayers() {
+      const res = await fetch(`${API_BASE}/players`);
+      if (!res.ok) {
+        console.error(`getAllPlayers failed: ${res.status} ${res.statusText}`);
+        throw new Error(`Failed to fetch all players: ${res.status}`);
+      }
+      const data = await res.json();
+      console.log('getAllPlayers success:', data);
+      return data;
+    }
+
+    async function testGetAllPlayers() {
+      try {
+        print('=== Testing GET /players ===');
+        print('Fetching...');
+        const data = await getAllPlayers();
+        print(`Response: ${JSON.stringify(data, null, 2)}`);
+        print('✓ SUCCESS\n');
+      } catch (err) {
+        print(`✗ ERROR: ${err.message}\n`);
+      }
+    }
+
+    async function testAddPlayer() {
+      try {
+        print('=== Testing POST /players ===');
+        const playerName = `TestPlayer_${Date.now()}`;
+        print(`Creating player: ${playerName}`);
+        const res = await fetch(`${API_BASE}/players`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: playerName })
+        });
+        print(`Status: ${res.status} ${res.statusText}`);
+        const data = await res.json();
+        print(`Response: ${JSON.stringify(data, null, 2)}`);
+        print('✓ SUCCESS\n');
+      } catch (err) {
+        print(`✗ ERROR: ${err.message}\n`);
+      }
+    }
+
+    async function testTopScores() {
+      try {
+        print('=== Testing GET /players/top ===');
+        const res = await fetch(`${API_BASE}/players/top`);
+        print(`Status: ${res.status} ${res.statusText}`);
+        const data = await res.json();
+        print(`Response: ${JSON.stringify(data, null, 2)}`);
+        print('✓ SUCCESS\n');
+      } catch (err) {
+        print(`✗ ERROR: ${err.message}\n`);
+      }
+    }
+
+    window.testGetAllPlayers = testGetAllPlayers;
+    window.testAddPlayer = testAddPlayer;
+    window.testTopScores = testTopScores;
+    window.clearLog = clearLog;
+
+    print('API Test Ready');
+  </script>
+</body>
+</html>
