@@ -261,12 +261,24 @@ async function loadAndShowPlayersList() {
     if (players.length === 0) {
       list.innerHTML = '<p>No players yet.</p>';
     } else {
-      list.innerHTML = players.map(p => 
+      // Build unique list of player names (preserve first occurrence order)
+      const seen = new Set();
+      const unique = [];
+      for (const p of players) {
+        if (!p.name) continue;
+        const key = p.name.trim();
+        const keyLower = key.toLowerCase();
+        if (!seen.has(keyLower)) {
+          seen.add(keyLower);
+          unique.push(key);
+        }
+      }
+      list.innerHTML = unique.map(name => 
         `<div class="player-item">
-          <span class="player-name">${p.name} (Score: ${p.highScore})</span>
+          <span class="player-name">${name}</span>
           <div class="player-actions">
-            <button class="player-action-btn" onclick="updatePlayerName('${p.name}')">Edit</button>
-            <button class="player-action-btn" onclick="deletePlayer('${p.name}')">Delete</button>
+            <button class="player-action-btn" onclick="updatePlayerName('${name.replace(/'/g, "\\'")}')">Edit</button>
+            <button class="player-action-btn" onclick="deletePlayer('${name.replace(/'/g, "\\'")}')">Delete</button>
           </div>
         </div>`
       ).join('');
@@ -301,12 +313,8 @@ async function updatePlayerName(oldName) {
       return;
     }
     
-    // Create new player with updated name (replaces old entry)
-    await api.postScore(trimmedNewName, oldPlayer.highScore);
-    
-    // Delete old player entry
-    await api.deletePlayer(oldName);
-    
+    // Request server to rename all entries from oldName to newName
+    await api.renamePlayer(oldName, trimmedNewName);
     await showAlert('Success', `Player renamed from "${oldName}" to "${trimmedNewName}"!`);
     loadAndShowPlayersList();
   } catch (err) {
@@ -335,9 +343,11 @@ async function promptExistingPlayer() {
   const name = await showPrompt('Enter player name:');
   if (name && name.trim()) {
     const playerName = name.trim();
-    // Check if player exists by fetching top scores
+    // Check if player exists
     try {
-      const players = await api.getTopScores();
+      console.log('Fetching all players...');
+      const players = await api.getAllPlayers();
+      console.log('Players fetched:', players);
       const playerExists = players.some(p => p.name.toLowerCase() === playerName.toLowerCase());
       if (playerExists) {
         currentPlayerName = playerName;
@@ -347,7 +357,7 @@ async function promptExistingPlayer() {
       }
     } catch (err) {
       console.error('Error checking player:', err);
-      await showAlert('Error', 'Error checking player. Please try again.');
+      await showAlert('Error', `Error checking player: ${err.message}`);
     }
   }
 }
@@ -359,24 +369,28 @@ async function promptNewPlayer() {
     const playerName = name.trim();
     // Check if player already exists
     try {
-      const players = await api.getTopScores();
+      console.log('Fetching all players to check if new player exists...');
+      const players = await api.getAllPlayers();
+      console.log('Players fetched:', players);
       const playerExists = players.some(p => p.name.toLowerCase() === playerName.toLowerCase());
       if (playerExists) {
         await showAlert('Player Exists', `Player "${playerName}" already exists. Please use "Existing Player" to continue.`);
       } else {
         currentPlayerName = playerName;
-        // Post initial score of 0 to create the player
+        // Add new player
         try {
-          await api.postScore(playerName, 0);
+          console.log('Adding new player:', playerName);
+          await api.addPlayer(playerName);
+          console.log('Player added successfully');
           hideMenuAndStartGame();
         } catch (err) {
           console.error('Error creating player:', err);
-          await showAlert('Error', 'Error creating player. Please try again.');
+          await showAlert('Error', `Error creating player: ${err.message}`);
         }
       }
     } catch (err) {
       console.error('Error checking player:', err);
-      await showAlert('Error', 'Error checking player. Please try again.');
+      await showAlert('Error', `Error checking player: ${err.message}`);
     }
   }
 }
@@ -404,7 +418,7 @@ async function promptAddAsteroid() {
 
   const asteroid = { size, speed, material, type, spawnRate };
   try {
-    await api.postAsteroid(asteroid);
+    await api.addAsteroid(asteroid);
     await showAlert('Success', 'Asteroid added!');
     loadAndShowAsteroidsList();
   } catch (err) {
@@ -427,14 +441,14 @@ function addRandomAsteroid() {
     spawnRate: Math.floor(Math.random() * 100) + 1
   };
 
-  api.postAsteroid(asteroid)
+  api.addAsteroid(asteroid)
     .then(() => {
-      alert('Random asteroid added!');
+      showAlert('Success', 'Random asteroid added!');
       loadAndShowAsteroidsList();
     })
     .catch(err => {
       console.error('Failed to add random asteroid:', err);
-      alert('Failed to add asteroid');
+      showAlert('Error', 'Failed to add asteroid');
     });
 }
 

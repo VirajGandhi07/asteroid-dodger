@@ -29,14 +29,28 @@ namespace PlayerManagerApp.Services
 
         public void DeletePlayer(string name)
         {
-            var player = Players.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (player != null)
+            // Remove all players with matching name (case-insensitive)
+            var matches = Players.Where(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (matches.Count > 0)
             {
-                Players.Remove(player);
+                Players = Players.Except(matches).ToList();
                 SavePlayers();
             }
         }
 
+        public void RenamePlayer(string oldName, string newName)
+        {
+            var changed = false;
+            foreach (var p in Players)
+            {
+                if (p.Name != null && p.Name.Equals(oldName, StringComparison.OrdinalIgnoreCase))
+                {
+                    p.Name = newName;
+                    changed = true;
+                }
+            }
+            if (changed) SavePlayers();
+        }
         public void SavePlayers()
         {
             var path = GetSharedFilePath("players.json");

@@ -214,5 +214,29 @@
     "Material": "Crystal",
     "Type": "Boss",
     "SpawnRate": 36
+  },
+  {
+    "Id": 29,
+    "Size": "Medium",
+    "Speed": 2,
+    "Material": "Rock",
+    "Type": "Boss",
+    "SpawnRate": 20
+  },
+  {
+    "Id": 29,
+    "Size": "Medium",
+    "Speed": 1,
+    "Material": "Iron",
+    "Type": "Normal",
+    "SpawnRate": 81
+  },
+  {
+    "Id": 30,
+    "Size": "Large",
+    "Speed": 2,
+    "Material": "Crystal",
+    "Type": "Boss",
+    "SpawnRate": 86
   }
 ]

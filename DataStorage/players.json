@@ -1,42 +1,30 @@
 [
   {
-    "Name": "Sam Hayward",
-    "HighScore": 42
-  },
-  {
-    "Name": "Quinn Stone",
-    "HighScore": 10
-  },
-  {
-    "Name": "Quinn Knight",
-    "HighScore": 49
-  },
-  {
     "Name": "Viraj",
-    "HighScore": 9
-  },
-  {
-    "Name": "Viraj",
-    "HighScore": 78
-  },
-  {
-    "Name": "Player1",
-    "HighScore": 52
-  },
-  {
-    "Name": "Player2",
     "HighScore": 0
-  },
-  {
-    "Name": "NewPlayer",
-    "HighScore": 0
-  },
-  {
-    "Name": "Viraj",
-    "HighScore": 9
   },
   {
     "Name": "Viraj",
     "HighScore": 5
+  },
+  {
+    "Name": "Player2",
+    "HighScore": 97
+  },
+  {
+    "Name": "Player3",
+    "HighScore": 30
+  },
+  {
+    "Name": "Player4",
+    "HighScore": 77
+  },
+  {
+    "Name": "Player1",
+    "HighScore": 44
+  },
+  {
+    "Name": "Viraj",
+    "HighScore": 33
   }
 ]
