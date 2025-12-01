@@ -1,9 +1,5 @@
 [
   {
-    "Name": "Riley Knight",
-    "HighScore": 7
-  },
-  {
     "Name": "Sam Hayward",
     "HighScore": 42
   },
@@ -34,5 +30,13 @@
   {
     "Name": "NewPlayer",
     "HighScore": 0
+  },
+  {
+    "Name": "Viraj",
+    "HighScore": 9
+  },
+  {
+    "Name": "Viraj",
+    "HighScore": 5
   }
 ]

@@ -16,14 +16,6 @@
     "SpawnRate": 36
   },
   {
-    "Id": 3,
-    "Size": "Large",
-    "Speed": 7,
-    "Material": "Rock",
-    "Type": "Rare",
-    "SpawnRate": 54
-  },
-  {
     "Id": 4,
     "Size": "Large",
     "Speed": 9,
@@ -214,5 +206,13 @@
     "Material": "Crystal",
     "Type": "Normal",
     "SpawnRate": 30
+  },
+  {
+    "Id": 28,
+    "Size": "Medium",
+    "Speed": 4,
+    "Material": "Crystal",
+    "Type": "Boss",
+    "SpawnRate": 36
   }
 ]
