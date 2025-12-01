@@ -32,6 +32,23 @@
       display: flex !important;
     }
     
+    /* Ensure modals are hidden by default and appear above menus */
+    #inputModal, #confirmModal, #alertModal {
+      display: none !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+      z-index: 20000; /* above menus */
+    }
+
+    #inputModal.active, #confirmModal.active, #alertModal.active {
+      display: flex !important;
+    }
+    
     /* Ensure menu panel styling */
     .menu-panel {
       background: #111;
@@ -150,25 +167,6 @@
     .input-modal-panel, .confirm-modal-panel, .alert-modal-panel {
       max-width: 450px;
       padding: 30px;
-    }
-    
-    /* Modal overlays - higher z-index than menus */
-    #inputModal, #confirmModal, #alertModal {
-      display: none !important;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.95);
-      z-index: 2000;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-    
-    #inputModal.active, #confirmModal.active, #alertModal.active {
-      display: flex !important;
     }
     
     .input-form {
