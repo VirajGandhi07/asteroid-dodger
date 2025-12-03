@@ -526,6 +526,7 @@ export function startGame() {
 
 export function onGameOver(score) {
   if (currentPlayerName) {
+    console.log('onGameOver: currentPlayerName=', currentPlayerName, 'score=', score);
     api.postScore(currentPlayerName, score)
       .then(() => showMenu('main'))
       .catch(err => {

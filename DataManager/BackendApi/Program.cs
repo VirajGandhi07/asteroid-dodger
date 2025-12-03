@@ -24,6 +24,76 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 app.UseCors("LocalDev");
 
+// Run EF migrations and perform one-time migration from legacy file-based storage (if present)
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var db = services.GetRequiredService<GameDbContext>();
+        // Ensure database is created and migrations applied
+        db.Database.Migrate();
+
+        // Attempt to migrate legacy players from DataStorage/players.json (if exists)
+        // Try a few likely locations for the legacy DataStorage folder
+        var candidates = new[] {
+            Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "DataStorage", "players.json")),
+            Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "..", "DataStorage", "players.json")),
+            Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "DataStorage", "players.json"))
+        };
+        string? legacyPath = null;
+        foreach (var c in candidates)
+        {
+            if (File.Exists(c)) { legacyPath = c; break; }
+        }
+        if (legacyPath != null)
+        {
+            // Only import if there are no scores yet to avoid duplicates
+            if (!db.Scores.Any())
+            {
+                Console.WriteLine($"[Startup] Found legacy players file at {legacyPath}, importing...");
+
+                var text = File.ReadAllText(legacyPath);
+                try
+                {
+                    var legacyPlayers = System.Text.Json.JsonSerializer.Deserialize<List<LegacyPlayer>>(text) ?? new List<LegacyPlayer>();
+                    foreach (var lp in legacyPlayers)
+                    {
+                        if (string.IsNullOrWhiteSpace(lp.Name)) continue;
+                        var name = lp.Name.Trim();
+                        var existing = db.Players.FirstOrDefault(p => p.Name.ToLower() == name.ToLower());
+                        if (existing == null)
+                        {
+                            existing = new GamePlayer { Name = name, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow };
+                            db.Players.Add(existing);
+                            db.SaveChanges();
+                        }
+                        // If legacy has a high score, add it as a PlayerScore record
+                        if (lp.HighScore > 0)
+                        {
+                            var score = new PlayerScore { PlayerId = existing.Id, Score = lp.HighScore, ScoredAt = DateTime.UtcNow };
+                            db.Scores.Add(score);
+                            db.SaveChanges();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Startup] Failed to import legacy players: {ex.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("[Startup] Skipping legacy import because Scores table already contains data.");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[Startup] Exception during DB init: {ex}");
+    }
+}
+
 // Health check endpoint
 app.MapGet("/", () => Results.Ok(new { status = "ok", version = "1.0", database = "SQLite with EF Core" }));
 
@@ -122,3 +192,6 @@ public record ScoreDto(int Score);
 
 /// <summary>Player rename DTO</summary>
 public record RenameDto(string OldName, string NewName);
+
+// Internal record used when importing legacy JSON player files
+internal record LegacyPlayer(string Name, int HighScore);
