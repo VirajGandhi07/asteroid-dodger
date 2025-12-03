@@ -10,6 +10,7 @@ let previousMenu = null;
 const menuElements = {
   main: document.getElementById('mainMenu'),
   play: document.getElementById('playMenu'),
+  gameOver: document.getElementById('gameOverMenu'),
   scoreboard: document.getElementById('scoreboardMenu'),
   asteroids: document.getElementById('asteroidsMenu'),
   asteroidsList: document.getElementById('asteroidsList'),
@@ -227,6 +228,34 @@ function handlePlayMenuAction(action) {
       showMenu('asteroids');
       break;
     case 'back':
+      showMenu('main');
+      break;
+  }
+}
+
+// Handle game over menu actions
+function handleGameOverMenuAction(action) {
+  switch (action) {
+    case 'play-again':
+      // Resume game with same player
+      if (gameInstance && currentPlayerName) {
+        gameInstance.restart();
+        showGame(); // Hide menu and show game
+      }
+      break;
+    case 'change-player':
+      // Show play menu to select different player
+      currentPlayerName = null;
+      showMenu('play');
+      break;
+    case 'new-player-gameover':
+      // Prompt for new player name and start game
+      currentPlayerName = null;
+      promptNewPlayer();
+      break;
+    case 'back-to-menu':
+      // Return to main menu
+      currentPlayerName = null;
       showMenu('main');
       break;
   }
@@ -602,6 +631,7 @@ document.addEventListener('click', (e) => {
 
   if (currentMenu === 'main') handleMainMenuAction(action);
   else if (currentMenu === 'play') handlePlayMenuAction(action);
+  else if (currentMenu === 'gameOver') handleGameOverMenuAction(action);
   else if (currentMenu === 'asteroids') handleAsteroidsMenuAction(action);
   else if (action === 'back-scoreboard') showMenu('main');
   else if (action === 'back-asteroids') showMenu('play');
@@ -647,13 +677,21 @@ export function onGameOver(score) {
   if (currentPlayerName) {
     console.log('onGameOver: currentPlayerName=', currentPlayerName, 'score=', score);
     api.postScore(currentPlayerName, score)
-      .then(() => showMenu('main'))
+      .then(() => {
+        document.getElementById('gameOverScore').textContent = score;
+        document.getElementById('gameOverPlayer').textContent = currentPlayerName;
+        showMenu('gameOver');
+      })
       .catch(err => {
         console.error('Failed to post score:', err);
-        showMenu('main');
+        document.getElementById('gameOverScore').textContent = score;
+        document.getElementById('gameOverPlayer').textContent = currentPlayerName;
+        showMenu('gameOver');
       });
   } else {
-    showMenu('main');
+    document.getElementById('gameOverScore').textContent = score;
+    document.getElementById('gameOverPlayer').textContent = '-';
+    showMenu('gameOver');
   }
 }
 
