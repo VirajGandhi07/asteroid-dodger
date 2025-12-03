@@ -346,11 +346,19 @@
       <h2>Generate Sample Data</h2>
       <div class="form-group">
         <label for="playerCount">Number of players:</label>
-        <input type="number" id="playerCount" value="5" min="1" max="100">
+        <select id="playerCount">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+        </select>
       </div>
       <div class="form-group">
         <label for="asteroidCount">Number of asteroids:</label>
-        <input type="number" id="asteroidCount" value="10" min="0" max="100">
+        <select id="asteroidCount">
+          <option value="0" selected>0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+        </select>
       </div>
       <button class="menu-btn" data-action="generate-confirm">Generate</button>
       <button class="menu-btn" data-action="back-generate">Cancel</button>
