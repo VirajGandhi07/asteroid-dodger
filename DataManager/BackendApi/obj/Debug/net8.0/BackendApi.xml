@@ -1,0 +1,233 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BackendApi</name>
+    </assembly>
+    <members>
+        <member name="T:BackendApi.Data.LoginRequest">
+            <summary>
+            DTO for user login request
+            </summary>
+        </member>
+        <member name="M:BackendApi.Data.LoginRequest.#ctor(System.String,System.String)">
+            <summary>
+            DTO for user login request
+            </summary>
+        </member>
+        <member name="T:BackendApi.Data.RegisterRequest">
+            <summary>
+            DTO for user registration request
+            </summary>
+        </member>
+        <member name="M:BackendApi.Data.RegisterRequest.#ctor(System.String,System.String,System.String)">
+            <summary>
+            DTO for user registration request
+            </summary>
+        </member>
+        <member name="T:BackendApi.Data.AuthResponse">
+            <summary>
+            DTO for authentication response containing JWT token
+            </summary>
+        </member>
+        <member name="M:BackendApi.Data.AuthResponse.#ctor(System.Boolean,System.String,System.String,BackendApi.Data.UserDto)">
+            <summary>
+            DTO for authentication response containing JWT token
+            </summary>
+        </member>
+        <member name="T:BackendApi.Data.UserDto">
+            <summary>
+            DTO for user information (safe to return to client)
+            </summary>
+        </member>
+        <member name="M:BackendApi.Data.UserDto.#ctor(System.Int32,System.String,System.String,System.DateTime,System.Boolean)">
+            <summary>
+            DTO for user information (safe to return to client)
+            </summary>
+        </member>
+        <member name="T:BackendApi.Data.ErrorResponse">
+            <summary>
+            Standard error response format
+            </summary>
+        </member>
+        <member name="M:BackendApi.Data.ErrorResponse.#ctor(System.Int32,System.String,System.String,System.DateTime)">
+            <summary>
+            Standard error response format
+            </summary>
+        </member>
+        <member name="T:BackendApi.Data.GameAsteroid">
+            <summary>
+            Represents an asteroid in the game
+            </summary>
+        </member>
+        <member name="T:BackendApi.Data.GameDbContext">
+            <summary>
+            Database context for the Asteroid Dodger game API
+            Manages all database operations through Entity Framework Core
+            </summary>
+        </member>
+        <member name="T:BackendApi.Data.GamePlayer">
+            <summary>
+            Represents a player in the game system
+            </summary>
+        </member>
+        <member name="T:BackendApi.Data.PlayerScore">
+            <summary>
+            Represents a player's score in a game session
+            </summary>
+        </member>
+        <member name="T:BackendApi.Data.User">
+            <summary>
+            Represents a user account for authentication
+            </summary>
+        </member>
+        <member name="T:BackendApi.PlayerCreateDto">
+            <summary>Player creation DTO</summary>
+        </member>
+        <member name="M:BackendApi.PlayerCreateDto.#ctor(System.String)">
+            <summary>Player creation DTO</summary>
+        </member>
+        <member name="T:BackendApi.ScoreDto">
+            <summary>Score submission DTO</summary>
+        </member>
+        <member name="M:BackendApi.ScoreDto.#ctor(System.Int32)">
+            <summary>Score submission DTO</summary>
+        </member>
+        <member name="T:BackendApi.RenameDto">
+            <summary>Player rename DTO</summary>
+        </member>
+        <member name="M:BackendApi.RenameDto.#ctor(System.String,System.String)">
+            <summary>Player rename DTO</summary>
+        </member>
+        <member name="T:BackendApi.AsteroidCreateDto">
+            <summary>Asteroid creation DTO</summary>
+        </member>
+        <member name="M:BackendApi.AsteroidCreateDto.#ctor(System.String,System.Int32,System.String,System.String,System.Int32)">
+            <summary>Asteroid creation DTO</summary>
+        </member>
+        <member name="T:BackendApi.AsteroidDto">
+            <summary>Asteroid DTO for responses</summary>
+        </member>
+        <member name="M:BackendApi.AsteroidDto.#ctor(System.Int32,System.String,System.Int32,System.String,System.String,System.Int32,System.DateTime)">
+            <summary>Asteroid DTO for responses</summary>
+        </member>
+        <member name="T:BackendApi.Middleware.GlobalExceptionHandlerMiddleware">
+            <summary>
+            Global exception handling middleware for standardized error responses
+            </summary>
+        </member>
+        <member name="T:BackendApi.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:BackendApi.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:BackendApi.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:BackendApi.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:BackendApi.Services.AuthService">
+            <summary>
+            Service for handling JWT token generation and password hashing
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.AuthService.RegisterAsync(System.String,System.String,System.String)">
+            <summary>
+            Register a new user account
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.AuthService.LoginAsync(System.String,System.String)">
+            <summary>
+            Authenticate user and return JWT token
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.AuthService.GenerateJwtToken(BackendApi.Data.User)">
+            <summary>
+            Generate JWT token for authenticated user
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.AuthService.ValidateToken(System.String)">
+            <summary>
+            Validate JWT token (optional - for additional validation)
+            </summary>
+        </member>
+        <member name="T:BackendApi.Services.EF_AsteroidService">
+            <summary>
+            Asteroid service using Entity Framework Core for database operations
+            Replaces the file-based AsteroidService
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.EF_AsteroidService.GetAllAsteroidsAsync">
+            <summary>
+            Get all asteroids from the database
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.EF_AsteroidService.AddAsteroidAsync(BackendApi.AsteroidCreateDto)">
+            <summary>
+            Add a new asteroid
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.EF_AsteroidService.DeleteAsteroidAsync(System.Int32)">
+            <summary>
+            Delete an asteroid by ID
+            </summary>
+        </member>
+        <member name="T:BackendApi.Services.EF_PlayerService">
+            <summary>
+            Player service using Entity Framework Core for database operations
+            Replaces the file-based PlayerService
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.EF_PlayerService.GetAllPlayersAsync">
+            <summary>
+            Get all players from the database
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.EF_PlayerService.GetTopScoresAsync">
+            <summary>
+            Get top 5 players by high score
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.EF_PlayerService.AddPlayerAsync(System.String)">
+            <summary>
+            Add a new player
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.EF_PlayerService.DeletePlayerAsync(System.String)">
+            <summary>
+            Delete all players with the given name (case-insensitive)
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.EF_PlayerService.RenamePlayerAsync(System.String,System.String)">
+            <summary>
+            Rename all players with the old name to the new name
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.EF_PlayerService.AddScoreAsync(System.String,System.Int32)">
+            <summary>
+            Add a score for a player
+            </summary>
+        </member>
+        <member name="T:BackendApi.Services.PlayerDto">
+            <summary>
+            DTO for player data
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.PlayerDto.#ctor(System.Int32,System.String,System.DateTime,System.DateTime)">
+            <summary>
+            DTO for player data
+            </summary>
+        </member>
+        <member name="T:BackendApi.Services.PlayerScoreDto">
+            <summary>
+            DTO for player score (high score)
+            </summary>
+        </member>
+        <member name="M:BackendApi.Services.PlayerScoreDto.#ctor(System.String,System.Int32)">
+            <summary>
+            DTO for player score (high score)
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -49,12 +49,17 @@ A complete 2D dodger game combining a vanilla JavaScript frontend with an ASP.NE
 
 ### Backend Features
 - ✅ RESTful API endpoints for players and asteroids
+- ✅ JWT authentication with BCrypt password hashing
+- ✅ Secure protected endpoints (authorization required)
+- ✅ User registration and login
 - ✅ Entity Framework Core with SQLite database
 - ✅ Automatic player creation on first score post
 - ✅ CRUD operations for player scores and asteroids
 - ✅ Database migrations and schema management
 - ✅ Legacy data migration from JSON file format
+- ✅ Global exception handling with standardized error responses
 - ✅ CORS support for localhost development
+- ✅ Data seeding for demo users and test data
 
 ---
 
@@ -405,14 +410,113 @@ DELETE /asteroids/{id}
 - **Allowed Methods**: GET, POST, PUT, DELETE
 - **Allowed Headers**: `*`
 
+### Authentication (JWT)
+
+The API supports JWT (JSON Web Token) authentication for protected endpoints. Protected endpoints require an `Authorization: Bearer <token>` header.
+
+**Protected Endpoints:**
+- `POST /players` - Create player
+- `DELETE /players/{name}` - Delete player
+- `PUT /players/rename` - Rename player
+- `POST /asteroids` - Create asteroid
+- `DELETE /asteroids/{id}` - Delete asteroid
+
+#### Register a New User
+```
+POST /auth/register
+Content-Type: application/json
+
+{
+  "username": "myuser",
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "User registered successfully",
+  "user": {
+    "id": 1,
+    "username": "myuser",
+    "email": "user@example.com",
+    "createdAt": "2025-12-03T12:00:00Z",
+    "isActive": true
+  }
+}
+```
+
+#### Login
+```
+POST /auth/login
+Content-Type: application/json
+
+{
+  "username": "myuser",
+  "password": "password123"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": 1,
+    "username": "myuser",
+    "email": "user@example.com",
+    "createdAt": "2025-12-03T12:00:00Z",
+    "isActive": true
+  }
+}
+```
+
+#### Using JWT Token in Requests
+
+Once you have a token, include it in the `Authorization` header for protected endpoints:
+
+```bash
+curl -X POST http://localhost:5000/players \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -d '{"name": "AuthenticatedPlayer"}'
+```
+
+**Demo Credentials:**
+- Username: `demo`
+- Password: `demo123`
+
+(These are automatically seeded when the database is initialized)
+
+**Token Details:**
+- Algorithm: HS256
+- Expiration: 60 minutes from issuance
+- Issuer: `AsteroidDodgerApi`
+- Audience: `AsteroidDodgerClients`
+
 ### Error Responses
 
 Standard HTTP status codes:
 - `200 OK` - Success
 - `201 Created` - Resource created
 - `400 Bad Request` - Invalid input
+- `401 Unauthorized` - Authentication required or failed
 - `404 Not Found` - Resource not found
 - `500 Internal Server Error` - Server error
+
+**Error Response Format:**
+```json
+{
+  "statusCode": 400,
+  "message": "Invalid input",
+  "details": "Additional error information",
+  "timestamp": "2025-12-03T12:00:00Z"
+}
+```
 
 ---
 

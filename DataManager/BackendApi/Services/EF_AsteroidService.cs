@@ -77,12 +77,5 @@ public class EF_AsteroidService
     }
 }
 
-/// <summary>
-/// DTO for asteroid data
-/// </summary>
-public record AsteroidDto(int Id, string Size, int Speed, string Material, string Type, int SpawnRate, DateTime CreatedAt);
+// No DTOs here - they are in Dtos.cs
 
-/// <summary>
-/// DTO for creating a new asteroid
-/// </summary>
-public record AsteroidCreateDto(string Size, int Speed, string Material, string Type, int SpawnRate);
