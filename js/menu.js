@@ -554,8 +554,8 @@ async function handleGenerateConfirm() {
   const playerCountValue = document.getElementById('playerCount').value;
   const asteroidCountValue = document.getElementById('asteroidCount').value;
   
-  const playerCount = playerCountValue ? parseInt(playerCountValue) : 5;
-  const asteroidCount = asteroidCountValue ? parseInt(asteroidCountValue) : 10;
+  const playerCount = parseInt(playerCountValue) || 0;
+  const asteroidCount = parseInt(asteroidCountValue) || 0;
 
   console.log(`[Generate] Starting generation: ${playerCount} players, ${asteroidCount} asteroids`);
 
@@ -566,7 +566,7 @@ async function handleGenerateConfirm() {
   // Generate players first with addPlayer, then post their scores
   for (let i = 0; i < playerCount; i++) {
     const name = `GenPlayer${Date.now()}_${i}`;
-    const score = Math.floor(Math.random() * 100);
+    const score = Math.floor(Math.random() * 41); // Generate score between 0-40
     
     // Create promise chain: addPlayer -> postScore
     const playerPromise = api.addPlayer(name)
