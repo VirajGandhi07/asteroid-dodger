@@ -39,7 +39,12 @@ export async function postScore(name, score) {
     body: JSON.stringify({ score })
   });
   if (!res.ok) throw new Error('Failed to post score');
-  return res.json();
+  // Check if response has content before parsing as JSON
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return res.json();
+  }
+  return null;
 }
 
 export async function deletePlayer(name) {

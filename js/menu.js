@@ -134,6 +134,11 @@ function showMenu(menuName) {
   if (gameCanvas) gameCanvas.style.display = 'none';
   if (gameButtons) gameButtons.style.display = 'none';
   if (volumeControls) volumeControls.style.display = 'none';
+  
+  // Pause game when showing menu (except instructions which has its own handler)
+  if (gameInstance && gameInstance.pause && menuName !== 'instructions') {
+    gameInstance.pause();
+  }
 }
 
 // Show game and hide menus
@@ -145,6 +150,11 @@ function showGame() {
   if (gameCanvas) gameCanvas.style.display = 'block';
   if (gameButtons) gameButtons.style.display = 'flex';
   if (volumeControls) volumeControls.style.display = 'flex';
+  
+  // Resume game if it was paused by menu (but not if game not started yet)
+  if (gameInstance && gameInstance.resume && gameInstance.isStarted && gameInstance.isStarted()) {
+    gameInstance.resume();
+  }
 }
 
 // Handle main menu actions
@@ -398,8 +408,14 @@ async function promptNewPlayer() {
 // Hide menu and start the game
 function hideMenuAndStartGame() {
   showGame();
-  if (gameInstance && gameInstance.start) {
-    gameInstance.start();
+  if (gameInstance) {
+    // Restart the game to ensure fresh state
+    if (gameInstance.restart) {
+      gameInstance.restart();
+    }
+    if (gameInstance.start) {
+      gameInstance.start();
+    }
   }
 }
 
@@ -453,17 +469,37 @@ function addRandomAsteroid() {
 }
 
 // Generate sample data
-function handleGenerateConfirm() {
-  const playerCount = parseInt(document.getElementById('playerCount').value) || 5;
-  const asteroidCount = parseInt(document.getElementById('asteroidCount').value) || 10;
+async function handleGenerateConfirm() {
+  const playerCountValue = document.getElementById('playerCount').value;
+  const asteroidCountValue = document.getElementById('asteroidCount').value;
+  
+  const playerCount = playerCountValue ? parseInt(playerCountValue) : 5;
+  const asteroidCount = asteroidCountValue ? parseInt(asteroidCountValue) : 10;
 
+  console.log(`[Generate] Starting generation: ${playerCount} players, ${asteroidCount} asteroids`);
+
+  let generatedPlayers = 0;
+  let generatedAsteroids = 0;
   const promises = [];
 
-  // Generate players
+  // Generate players first with addPlayer, then post their scores
   for (let i = 0; i < playerCount; i++) {
-    const name = `Player${i + 1}`;
+    const name = `GenPlayer${Date.now()}_${i}`;
     const score = Math.floor(Math.random() * 100);
-    promises.push(api.postScore(name, score));
+    
+    // Create promise chain: addPlayer -> postScore
+    const playerPromise = api.addPlayer(name)
+      .then(() => {
+        generatedPlayers++;
+        console.log(`[Generate] Created player: ${name}`);
+        return api.postScore(name, score);
+      })
+      .catch(err => {
+        console.error(`[Generate] Failed to create player ${name}:`, err);
+        throw err;
+      });
+    
+    promises.push(playerPromise);
   }
 
   // Generate asteroids
@@ -479,18 +515,29 @@ function handleGenerateConfirm() {
       type: types[Math.floor(Math.random() * types.length)],
       spawnRate: Math.floor(Math.random() * 100) + 1
     };
-    promises.push(api.postAsteroid(asteroid));
+    
+    const asteroidPromise = api.addAsteroid(asteroid)
+      .then(() => {
+        generatedAsteroids++;
+        console.log(`[Generate] Created asteroid ${i + 1}`);
+      })
+      .catch(err => {
+        console.error(`[Generate] Failed to create asteroid ${i + 1}:`, err);
+        throw err;
+      });
+    
+    promises.push(asteroidPromise);
   }
 
-  Promise.all(promises)
-    .then(() => {
-      alert(`Generated ${playerCount} players and ${asteroidCount} asteroids!`);
-      showMenu('main');
-    })
-    .catch(err => {
-      console.error('Failed to generate data:', err);
-      alert('Failed to generate data');
-    });
+  try {
+    await Promise.all(promises);
+    console.log(`[Generate] SUCCESS: ${generatedPlayers} players and ${generatedAsteroids} asteroids generated`);
+    await showAlert('Success', `Generated ${playerCount} players and ${asteroidCount} asteroids!`);
+    showMenu('main');
+  } catch (err) {
+    console.error('[Generate] Failed to generate data:', err);
+    await showAlert('Error', `Failed to generate data: ${err.message}`);
+  }
 }
 
 // Wire up menu button handlers
@@ -507,9 +554,22 @@ document.querySelectorAll('[data-action]').forEach(btn => {
     else if (action === 'back-list') showMenu('asteroids');
     else if (action === 'back-generate') showMenu('main');
     else if (action === 'back-instructions') {
-      // Return to previous menu when closing instructions
-      if (previousMenu) showMenu(previousMenu);
-      else showMenu('main');
+      // Hide instructions modal
+      if (menuElements.instructions) {
+        menuElements.instructions.classList.remove('active');
+      }
+      
+      // If game is running, resume it and update UI
+      if (gameInstance && gameInstance.isStarted && gameInstance.isStarted()) {
+        // Call the resume callback from main.js which handles game resume and button text update
+        if (window.onCloseInstructionsFromMenu) {
+          window.onCloseInstructionsFromMenu();
+        }
+      } else {
+        // Return to previous menu if not in game
+        if (previousMenu && previousMenu !== 'instructions') showMenu(previousMenu);
+        else showMenu('main');
+      }
     }
     else if (action === 'generate-confirm') handleGenerateConfirm();
   });

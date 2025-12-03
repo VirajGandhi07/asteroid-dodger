@@ -98,6 +98,7 @@ initPlayer({
 ui = initUI({
   getGameStarted: () => game.isStarted(),
   getGameOver: () => game.isGameOver(),
+  getGameState: () => game.getState(),
   onTogglePause: () => game.togglePause(),
   onRestart: () => game.restart(),
   onResetHighScore: () => {
@@ -124,6 +125,15 @@ ui = initUI({
     game.start();
   }
 });
+
+// Expose callback to window for menu.js to call when closing instructions during gameplay
+window.onCloseInstructionsFromMenu = () => {
+  if (game.isStarted() && game.getState().paused) {
+    game.resume();
+    if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Pause Game');
+    if (game.isStarted()) bgMusic.play();
+  }
+};
 
 // Start with menu system
 startGame();
