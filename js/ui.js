@@ -5,7 +5,6 @@ export default function initUI(callbacks = {}) {
   const resetScoreBtn = document.getElementById('resetScoreBtn');     // Reset high score
   const instructionsBtn = document.getElementById('instructionsBtn'); // Show instructions
   const instructionsModal = document.getElementById('instructionsModal'); // Instructions modal
-  const closeInstructionsBtn = document.getElementById('closeInstructionsBtn'); // Close modal
   const startMenu = document.getElementById('startMenu');             // Start screen
   const startGameBtn = document.getElementById('startGameBtn');       // Start game from menu
   const startInstructionsBtn = document.getElementById('startInstructionsBtn'); // Show instructions from menu
@@ -15,7 +14,19 @@ export default function initUI(callbacks = {}) {
       if (!callbacks.getGameStarted || !callbacks.getGameStarted()) return; // Only if game started
       if (callbacks.getGameOver && callbacks.getGameOver()) return;         // Skip if game over
       callbacks.onTogglePause && callbacks.onTogglePause();                 // Toggle pause
+      
+      // Update button text based on NEW pause state (after toggle with setTimeout)
+      setTimeout(() => {
+        const state = callbacks.getGameState && callbacks.getGameState();
+        if (state && state.paused) {
+          pauseBtn.textContent = 'Resume Game';
+        } else {
+          pauseBtn.textContent = 'Pause Game';
+        }
+      }, 0);
     });
+    // Initialize button text
+    pauseBtn.textContent = 'Pause Game';
   }
 
   if (newGameBtn) newGameBtn.addEventListener('click', () => 
@@ -29,20 +40,9 @@ export default function initUI(callbacks = {}) {
   if (instructionsBtn) {
     instructionsBtn.addEventListener('click', () => {
       callbacks.onPauseForInstructions && callbacks.onPauseForInstructions(); // Pause game for modal
-      if (instructionsModal) instructionsModal.style.display = 'flex';       // Show instructions
-    });
-  }
-
-  if (closeInstructionsBtn) {
-    closeInstructionsBtn.addEventListener('click', () => {
-      if (instructionsModal) instructionsModal.style.display = 'none';      // Hide modal
-
-      if (callbacks.getGameStarted && !callbacks.getGameStarted()) {         // Return to start menu if game not started
-        if (startMenu) startMenu.style.display = 'flex';
-        return;
+      if (instructionsModal) {
+        instructionsModal.classList.add('active');  // Show instructions using menu-overlay styling
       }
-
-      callbacks.onCloseInstructions && callbacks.onCloseInstructions();     // Resume game after closing
     });
   }
 
@@ -56,7 +56,7 @@ export default function initUI(callbacks = {}) {
   if (startInstructionsBtn) {
     startInstructionsBtn.addEventListener('click', () => {
       if (startMenu) startMenu.style.display = 'none';                      // Hide start menu
-      if (instructionsModal) instructionsModal.style.display = 'flex';     // Show instructions modal
+      if (instructionsModal) instructionsModal.classList.add('active');    // Show instructions modal
     });
   }
 

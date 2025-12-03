@@ -150,7 +150,10 @@ app.MapPost("/players/{name}/score", async (EF_PlayerService ps, string name, Sc
         return Results.BadRequest(new { error = "Player name is required" });
     
     await ps.AddScoreAsync(name, dto.Score);
-    return Results.Ok();
+    // Return the player data for consistency
+    var players = await ps.GetAllPlayersAsync();
+    var player = players.FirstOrDefault(p => p.Name.ToLower() == name.Trim().ToLower());
+    return Results.Ok(new { message = "Score recorded", player });
 });
 
 // ===== ASTEROID ENDPOINTS =====
