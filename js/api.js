@@ -79,3 +79,17 @@ export async function addAsteroid(asteroid) {
   if (!res.ok) throw new Error('Failed to add asteroid');
   return res.json();
 }
+
+export async function deleteAsteroid(id) {
+  const res = await fetch(`${API_BASE}/asteroids/${id}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  if (!res.ok) throw new Error('Failed to delete asteroid');
+  // Check if response has content before parsing JSON
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return res.json();
+  }
+  return { message: 'Asteroid deleted successfully' };
+}

@@ -180,7 +180,7 @@ app.MapPost("/asteroids", async (EF_AsteroidService asvc, AsteroidCreateDto dto)
 app.MapDelete("/asteroids/{id}", async (EF_AsteroidService asvc, int id) =>
 {
     await asvc.DeleteAsteroidAsync(id);
-    return Results.Ok();
+    return Results.Ok(new { message = "Asteroid deleted successfully", id });
 });
 
 app.Run("http://localhost:5000");

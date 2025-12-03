@@ -241,6 +241,9 @@ function handleAsteroidsMenuAction(action) {
     case 'add-asteroid':
       promptAddAsteroid();
       break;
+    case 'delete-asteroid':
+      promptDeleteAsteroid();
+      break;
     case 'random-asteroid':
       addRandomAsteroid();
       break;
@@ -465,6 +468,30 @@ async function promptAddAsteroid() {
   } catch (err) {
     console.error('Failed to add asteroid:', err);
     await showAlert('Error', 'Failed to add asteroid');
+  }
+}
+
+// Delete asteroid by ID
+async function promptDeleteAsteroid() {
+  const idInput = await showPrompt('Enter asteroid ID to delete:');
+  if (!idInput) return;
+
+  const id = parseInt(idInput);
+  if (isNaN(id) || id <= 0) {
+    await showAlert('Error', 'Invalid asteroid ID. Please enter a valid number.');
+    return;
+  }
+
+  try {
+    const confirmed = await showConfirm('Delete Asteroid', `Are you sure you want to delete asteroid with ID ${id}?`);
+    if (!confirmed) return;
+
+    await api.deleteAsteroid(id);
+    await showAlert('Success', `Asteroid with ID ${id} has been deleted!`);
+    loadAndShowAsteroidsList();
+  } catch (err) {
+    console.error('Failed to delete asteroid:', err);
+    await showAlert('Error', `Failed to delete asteroid: ${err.message}`);
   }
 }
 
