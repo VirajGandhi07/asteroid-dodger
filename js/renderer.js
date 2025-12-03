@@ -18,9 +18,43 @@ export function draw(ctx, canvas, player, asteroids, rocketImg, asteroidImg, sta
     ctx.drawImage(rocketImg, player.x, player.y, player.width, player.height);
   }
 
-  // Draw asteroids
+  // Draw asteroids with rotation and color
   for (let a of asteroids) {
-    ctx.drawImage(asteroidImg, a.x, a.y, a.size, a.size);
+    ctx.save();
+    
+    // Move to asteroid center for rotation
+    const centerX = a.x + a.size / 2;
+    const centerY = a.y + a.size / 2;
+    ctx.translate(centerX, centerY);
+    ctx.rotate(a.rotation);
+    
+    // Draw asteroid with color and shadow effect
+    if (asteroidImg.complete) {
+      ctx.filter = `drop-shadow(0 0 8px rgba(139, 115, 85, 0.6))`;
+      ctx.globalAlpha = 0.95;
+      ctx.drawImage(asteroidImg, -a.size / 2, -a.size / 2, a.size, a.size);
+    } else {
+      // Fallback: draw colored polygon
+      ctx.fillStyle = a.color;
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = 5;
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2;
+        const radius = a.size / 2 * (0.7 + Math.random() * 0.3);
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    
+    ctx.restore();
   }
 
   // UI info
