@@ -36,8 +36,24 @@ public class EF_PlayerService
             .Include(p => p.Scores)
             .ToListAsync();
 
+        // Debug: log players and their scores
+        Console.WriteLine("[EF_PlayerService] Debug: Players and their scores:");
+        foreach (var pl in players)
+        {
+            var scoresList = pl.Scores.Select(s => s.Score).ToList();
+            Console.WriteLine($"Player={pl.Name} Id={pl.Id} Scores=[{string.Join(',', scoresList)}]");
+        }
+
+        // Debug: log all score records in DB
+        var allScores = await _context.Scores.ToListAsync();
+        Console.WriteLine("[EF_PlayerService] Debug: All Scores in DB:");
+        foreach (var sc in allScores)
+        {
+            Console.WriteLine($"ScoreRecord Id={sc.Id} PlayerId={sc.PlayerId} Score={sc.Score} ScoredAt={sc.ScoredAt}");
+        }
+
         // Calculate top scores in memory
-        return players
+        var result = players
             .Select(p => new PlayerScoreDto(
                 p.Name,
                 p.Scores.Any() ? p.Scores.Max(s => s.Score) : 0
@@ -45,8 +61,11 @@ public class EF_PlayerService
             .OrderByDescending(ps => ps.HighScore)
             .Take(5)
             .ToList();
-    }
 
+        Console.WriteLine("[EF_PlayerService] Debug: Top scores result: " + string.Join(';', result.Select(r => r.Name + ":" + r.HighScore)));
+
+        return result;
+    }
     /// <summary>
     /// Add a new player
     /// </summary>
@@ -107,6 +126,7 @@ public class EF_PlayerService
     /// </summary>
     public async Task AddScoreAsync(string playerName, int score)
     {
+        Console.WriteLine($"[EF_PlayerService] AddScoreAsync called for '{playerName}' score={score}");
         var player = await _context.Players
             .FirstOrDefaultAsync(p => p.Name.ToLower() == playerName.Trim().ToLower());
 
