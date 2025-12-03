@@ -11,7 +11,7 @@
   <!-- Critical inline CSS for menu visibility - MUST be after main.css -->
   <style>
     /* Override to ensure menus hide/show properly */
-    #mainMenu, #playMenu, #scoreboardMenu, #asteroidsMenu, 
+    #mainMenu, #playMenu, #gameOverMenu, #scoreboardMenu, #asteroidsMenu, 
     #asteroidsList, #generateMenu {
       display: none !important;
       position: fixed;
@@ -41,7 +41,7 @@
       flex-direction: column;
     }
     
-    #mainMenu.active, #playMenu.active, #scoreboardMenu.active, 
+    #mainMenu.active, #playMenu.active, #gameOverMenu.active, #scoreboardMenu.active, 
     #asteroidsMenu.active, #asteroidsList.active, #generateMenu.active, 
     #instructionsModal.active {
       display: flex !important;
@@ -264,6 +264,23 @@
         <button class="menu-btn" data-action="generate">3. Generate Sample Data</button>
         <button class="menu-btn" data-action="instructions">4. How to Play</button>
         <button class="menu-btn" data-action="exit">5. Exit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER MENU OVERLAY -->
+  <div id="gameOverMenu" role="dialog" aria-label="Game Over Menu" class="menu-overlay">
+    <div class="menu-panel">
+      <h2>GAME OVER</h2>
+      <div style="margin: 30px 0; font-size: 1.5em; color: #0f0; font-family: 'Trebuchet MS', sans-serif;">
+        <p>Score: <span id="gameOverScore">0</span></p>
+        <p>Player: <span id="gameOverPlayer">-</span></p>
+      </div>
+      <div class="menu-buttons">
+        <button class="menu-btn" data-action="play-again">Play Again</button>
+        <button class="menu-btn" data-action="change-player">Change Player</button>
+        <button class="menu-btn" data-action="new-player-gameover">New Player</button>
+        <button class="menu-btn" data-action="back-to-menu">Back to Menu</button>
       </div>
     </div>
   </div>
