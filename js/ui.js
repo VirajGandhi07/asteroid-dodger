@@ -13,17 +13,21 @@ export default function initUI(callbacks = {}) {
     pauseBtn.addEventListener('click', () => {
       if (!callbacks.getGameStarted || !callbacks.getGameStarted()) return; // Only if game started
       if (callbacks.getGameOver && callbacks.getGameOver()) return;         // Skip if game over
+      
+      const stateBefore = callbacks.getGameState && callbacks.getGameState();
+      console.log('[UI] Pause button clicked. State before:', stateBefore?.paused ? 'paused' : 'running');
+      
       callbacks.onTogglePause && callbacks.onTogglePause();                 // Toggle pause
       
-      // Update button text based on NEW pause state (after toggle with setTimeout)
-      setTimeout(() => {
-        const state = callbacks.getGameState && callbacks.getGameState();
-        if (state && state.paused) {
-          pauseBtn.textContent = 'Resume Game';
-        } else {
-          pauseBtn.textContent = 'Pause Game';
-        }
-      }, 0);
+      // Update button text based on NEW pause state (after toggle)
+      const stateAfter = callbacks.getGameState && callbacks.getGameState();
+      if (stateAfter && stateAfter.paused) {
+        pauseBtn.textContent = 'Resume Game';
+        console.log('[UI] Game paused, button text set to Resume Game');
+      } else {
+        pauseBtn.textContent = 'Pause Game';
+        console.log('[UI] Game resumed, button text set to Pause Game');
+      }
     });
     // Initialize button text
     pauseBtn.textContent = 'Pause Game';
@@ -38,10 +42,22 @@ export default function initUI(callbacks = {}) {
   );
 
   if (instructionsBtn) {
-    instructionsBtn.addEventListener('click', () => {
+    instructionsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      console.log('[UI] Instructions button clicked');
+      console.log('[UI] instructionsModal element:', instructionsModal);
+      console.log('[UI] instructionsModal classes before:', instructionsModal?.className);
+      
       callbacks.onPauseForInstructions && callbacks.onPauseForInstructions(); // Pause game for modal
+      
       if (instructionsModal) {
+        console.log('[UI] Showing instructions modal');
         instructionsModal.classList.add('active');  // Show instructions using menu-overlay styling
+        console.log('[UI] instructionsModal classes after:', instructionsModal?.className);
+        console.log('[UI] instructionsModal computed display:', window.getComputedStyle(instructionsModal).display);
+      } else {
+        console.error('[UI] instructionsModal element not found!');
       }
     });
   }

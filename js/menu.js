@@ -123,9 +123,22 @@ function showAlert(title, message) {
 
 // Show menu and hide others; also hide game UI
 function showMenu(menuName) {
+  console.log('[Menu] showMenu called:', menuName);
+  
+  // Don't hide the instructions modal if it's currently active
+  const instructionsActive = menuElements.instructions && menuElements.instructions.classList.contains('active');
+  
   Object.values(menuElements).forEach(el => {
-    if (el) el.classList.remove('active');
+    if (el) {
+      // Keep instructions modal active if it's open
+      if (instructionsActive && el === menuElements.instructions) {
+        console.log('[Menu] Keeping instructions modal active');
+        return;
+      }
+      el.classList.remove('active');
+    }
   });
+  
   if (menuElements[menuName]) {
     menuElements[menuName].classList.add('active');
     currentMenu = menuName;
@@ -143,8 +156,20 @@ function showMenu(menuName) {
 
 // Show game and hide menus
 function showGame() {
+  console.log('[Menu] showGame called');
+  
+  // Don't hide the instructions modal if it's currently active
+  const instructionsActive = menuElements.instructions && menuElements.instructions.classList.contains('active');
+  
   Object.values(menuElements).forEach(el => {
-    if (el) el.classList.remove('active');
+    if (el) {
+      // Keep instructions modal active if it's open
+      if (instructionsActive && el === menuElements.instructions) {
+        console.log('[Menu] Keeping instructions modal active in showGame');
+        return;
+      }
+      el.classList.remove('active');
+    }
   });
   // Show game elements
   if (gameCanvas) gameCanvas.style.display = 'block';
@@ -540,39 +565,46 @@ async function handleGenerateConfirm() {
   }
 }
 
-// Wire up menu button handlers
-document.querySelectorAll('[data-action]').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    const action = e.target.dataset.action;
+// Wire up menu button handlers with event delegation
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  
+  const action = btn.dataset.action;
+  console.log('[Menu] Action clicked:', action, 'currentMenu:', currentMenu);
 
-    if (currentMenu === 'main') handleMainMenuAction(action);
-    else if (currentMenu === 'play') handlePlayMenuAction(action);
-    else if (currentMenu === 'asteroids') handleAsteroidsMenuAction(action);
-    else if (action === 'back-scoreboard') showMenu('main');
-    else if (action === 'back-asteroids') showMenu('play');
-    else if (action === 'back-players-list') showMenu('play');
-    else if (action === 'back-list') showMenu('asteroids');
-    else if (action === 'back-generate') showMenu('main');
-    else if (action === 'back-instructions') {
-      // Hide instructions modal
-      if (menuElements.instructions) {
-        menuElements.instructions.classList.remove('active');
-      }
-      
-      // If game is running, resume it and update UI
-      if (gameInstance && gameInstance.isStarted && gameInstance.isStarted()) {
-        // Call the resume callback from main.js which handles game resume and button text update
-        if (window.onCloseInstructionsFromMenu) {
-          window.onCloseInstructionsFromMenu();
-        }
-      } else {
-        // Return to previous menu if not in game
-        if (previousMenu && previousMenu !== 'instructions') showMenu(previousMenu);
-        else showMenu('main');
-      }
+  if (currentMenu === 'main') handleMainMenuAction(action);
+  else if (currentMenu === 'play') handlePlayMenuAction(action);
+  else if (currentMenu === 'asteroids') handleAsteroidsMenuAction(action);
+  else if (action === 'back-scoreboard') showMenu('main');
+  else if (action === 'back-asteroids') showMenu('play');
+  else if (action === 'back-players-list') showMenu('play');
+  else if (action === 'back-list') showMenu('asteroids');
+  else if (action === 'back-generate') showMenu('main');
+  else if (action === 'back-instructions') {
+    console.log('[Menu] Back-instructions clicked. Game started?', gameInstance && gameInstance.isStarted && gameInstance.isStarted());
+    
+    // Hide instructions modal first
+    if (menuElements.instructions) {
+      menuElements.instructions.classList.remove('active');
+      console.log('[Menu] Instructions modal hidden');
     }
-    else if (action === 'generate-confirm') handleGenerateConfirm();
-  });
+    
+    // If game is running, resume it and update UI
+    if (gameInstance && gameInstance.isStarted && gameInstance.isStarted()) {
+      console.log('[Menu] Game is running, resuming...');
+      // Call the resume callback from main.js which handles game resume and button text update
+      if (window.onCloseInstructionsFromMenu) {
+        window.onCloseInstructionsFromMenu();
+      }
+    } else {
+      console.log('[Menu] Game not running, showing previous menu');
+      // Return to previous menu if not in game
+      if (previousMenu && previousMenu !== 'instructions') showMenu(previousMenu);
+      else showMenu('main');
+    }
+  }
+  else if (action === 'generate-confirm') handleGenerateConfirm();
 });
 
 // Export public API for main.js to call

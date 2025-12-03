@@ -115,9 +115,14 @@ ui = initUI({
   },
   onCloseInstructions: () => {
     // Resume game/audio only if UI paused it when opening instructions
+    console.log('[Main] onCloseInstructions called. Game paused?', game.isStarted() && game.getState().paused);
     if (game.isStarted() && game.getState().paused) {
       game.resume();
-      if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Pause Game');
+      console.log('[Main] Game resumed');
+      if (ui && ui.setPauseButtonText) {
+        ui.setPauseButtonText('Pause Game');
+        console.log('[Main] Pause button text updated to Pause Game');
+      }
       if (game.isStarted()) bgMusic.play();
     }
   },
@@ -128,10 +133,18 @@ ui = initUI({
 
 // Expose callback to window for menu.js to call when closing instructions during gameplay
 window.onCloseInstructionsFromMenu = () => {
+  console.log('[Main] onCloseInstructionsFromMenu called. Game started?', game.isStarted());
   if (game.isStarted() && game.getState().paused) {
+    console.log('[Main] Resuming game from instructions close');
     game.resume();
-    if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Pause Game');
+    console.log('[Main] Game resumed, updating button text');
+    if (ui && ui.setPauseButtonText) {
+      ui.setPauseButtonText('Pause Game');
+      console.log('[Main] Button text updated to Pause Game');
+    }
     if (game.isStarted()) bgMusic.play();
+  } else {
+    console.log('[Main] Game not paused or not started, skipping resume');
   }
 };
 
