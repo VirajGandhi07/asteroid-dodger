@@ -1,102 +1,333 @@
 # Asteroid Dodger — Game Design Document (GDD)
 
-Version: 1.1
-Last updated: 2025-11-18
+**Version:** 2.0  
+**Last Updated:** December 4, 2025  
+**Status:** Production Ready
 
-Purpose
--------
-This document describes the design and implementation plan for "Asteroid Dodger", a browser-based 2D survival/dodger game. It is written to guide development, testing, and future enhancements.
+---
 
-High-level summary
--------------------
-- Genre: 2D Survival / Dodger
-- Platform: Web (modern browsers with ES module support)
-- Tech stack: HTML5 Canvas, CSS, JavaScript (ES modules)
-- Scope: Lightweight, single-screen arcade experience with modular, maintainable code
+## Purpose
 
-Design goals
-------------
-- Fast, responsive controls with immediate feedback.
-- Clear, focused gameplay loop: dodge, survive, improve.
-- Small, modular codebase suitable for learning and extension.
-- Graceful audio handling that honors browser autoplay policies.
+This document describes the complete design and implementation of **Asteroid Dodger**, a full-stack browser-based 2D survival game with role-based access control, secure authentication, and persistent data storage. It serves as the definitive guide for development, testing, and future enhancements.
 
-Target audience
----------------
-- Casual web gamers (desktop first, mobile-friendly later).
-- Developers interested in small game architecture and modular JS.
+---
 
-Core gameplay loop
-------------------
-1. Player starts in the start menu.
-2. Player presses Start → game begins, music attempts to play.
-3. Asteroids spawn and move toward the player.
-4. Player moves up and down to avoid collisions.
-5. Surviving longer increases the score; difficulty gradually increases.
-6. Collision triggers Game Over, sound effect plays, and high score is saved.
+## Executive Summary
 
-Controls & input
-----------------
-- Keyboard (primary):
-  - Arrow Up / Arrow Down: move rocket up/down
-  - P: pause/resume
-  - R: restart after Game Over
-- Mouse / Touch (UI): on-screen buttons for Start, Pause, Reset High Score, Instructions, Volume controls.
+- **Genre:** 2D Survival / Dodger with Backend Integration
+- **Platform:** Web (Modern Browsers with ES6 Module Support)
+- **Tech Stack:** 
+  - Frontend: HTML5 Canvas, CSS3, JavaScript ES6 Modules
+  - Backend: ASP.NET Core 8.0, Entity Framework Core, SQLite
+- **Architecture:** Full-stack application with RESTful API
+- **Authentication:** Session-based with role-based access control (RBAC)
+- **Scope:** Production-ready arcade game with admin management panel
 
-Player mechanics
-----------------
-- Player is constrained vertically inside the canvas.
-- Movement is immediate (no complex acceleration) — configurable speed constant.
+---
 
-Asteroids & obstacles
----------------------
-- Asteroids spawn at the canvas edge and move across the playfield.
-- Spawning frequency and asteroid speed scale with elapsed time.
-- Asteroids have a size variance; larger asteroids are easier to collide with.
+## Design Goals
 
-Difficulty & progression
-------------------------
-- Difficulty curve is determined by spawn interval and asteroid speed.
-- Both values gradually change over elapsed time using linear scaling or tunable curves.
+1. **Security First:** Implement secure authentication with session management
+2. **Role Separation:** Clear distinction between admin and normal user experiences
+3. **Fast & Responsive:** Immediate visual and audio feedback
+4. **Modular Architecture:** Maintainable codebase with clear separation of concerns
+5. **Data Persistence:** Reliable score tracking and player management
+6. **User-Friendly:** Intuitive controls and clear visual design
 
-Scoring
--------
-- Score is primarily time-based (seconds survived).
-- High score is persisted to `localStorage`.
+---
 
-User Interface (HUD)
--------------------
-- Visible elements: current time/score, high score, pause button, volume controls.
-- Start menu overlay and Instructions modal implemented as DOM elements over the canvas.
+## Target Audience
 
-Art & audio
------------
-- Art style: pixel/sprite assets for rocket and asteroids with shape fallback; assets live in `images/`.
-- Audio: background music and explosion SFX in `sounds/`.
-- Audio module centralizes mute and volume controls and exposes `getMuted()`/`setMuted()`.
+### Primary Users
+- **Casual Gamers:** Looking for quick, engaging arcade gameplay
+- **Normal Users:** Players who want to track their scores and improve
+- **Administrators:** Game managers who need full control over data
 
-Technical architecture
-----------------------
-Modular ES modules separate responsibilities and keep the top-level `main.js` small.
+### Secondary Users
+- **Developers:** Learning full-stack game development
+- **Students:** Studying modular JavaScript architecture and backend integration
 
-Key modules (in `js/`):
-- `main.js` — orchestrates initialization and wires modules.
-- `game.js` — owns game state, RAF loop, update orchestration, pause/resume.
-- `player.js` — player model, keyboard listeners, position update.
-- `asteroids.js` — asteroid array management, spawn/update/reset.
-- `renderer.js` — canvas drawing (stars, player, asteroids, HUD, overlays).
-- `audio.js` — audio objects, initAudio(), setMuted/getMuted.
-- `utils.js` — collision detection and spawn interval helper.
-- `config.js` — constants and tuning parameters.
+---
 
-Runtime state
--------------
-- `game.js` maintains: `gameStarted`, `gameOver`, `paused`, `elapsedTime`, `highScore`.
-- Shared mutable lists/objects: `asteroids[]`, `player` object.
+## User Roles & Access Control
 
-Persistence
------------
-- High score key stored in `localStorage` (e.g., `highScore`).
+### 👑 Admin Users
+**Capabilities:**
+- Full game management and data control
+- Player database management (CRUD operations)
+- Asteroid configuration management
+- Sample data generation for testing
+- Access to all game features
+
+**Menu Structure:**
+```
+Main Menu:
+├── Play → Full Play Menu
+│   ├── Existing Player
+│   ├── New Player
+│   ├── List of Players
+│   └── Asteroids Management
+├── Scoreboard
+├── Generate Sample Data (Admin Only)
+├── How to Play
+└── Exit
+
+Game Over Menu:
+├── Play Again
+├── Change Player (Admin Only)
+├── New Player (Admin Only)
+└── Back to Menu
+```
+
+### 👤 Normal Users
+**Capabilities:**
+- Play game with automatic profile creation
+- View scoreboard
+- Track personal scores
+- Access instructions
+
+**Menu Structure:**
+```
+Main Menu:
+├── Play → Auto-start game
+├── Scoreboard
+├── How to Play
+└── Exit
+
+Game Over Menu:
+├── Play Again
+└── Back to Menu
+```
+
+**Auto-Play Feature:**
+- Clicking "Play" immediately starts the game
+- Uses the signup name as player name
+- Player automatically created in database if not exists
+- Scores automatically saved to their profile
+
+---
+
+## Core Gameplay Loop
+
+### For Normal Users:
+1. User logs in → Main menu appears
+2. Click "Play" → Game starts immediately with user's name
+3. Dodge asteroids → Score increases
+4. Collision → Game over, score saved automatically
+5. Choose "Play Again" or "Back to Menu"
+
+### For Admin Users:
+1. Admin logs in → Main menu with full options
+2. Click "Play" → Play menu appears
+3. Select player type (Existing/New) → Game starts
+4. Dodge asteroids → Score increases
+5. Collision → Game over with full management options
+6. Can change player, create new, or return to menu
+
+---
+
+## Controls & Input
+
+### Keyboard Controls
+- **Arrow Up / W:** Move rocket up
+- **Arrow Down / S:** Move rocket down
+- **P:** Pause/Resume game
+- **Esc:** Close instructions modal
+
+### Mouse/Touch Controls
+- **UI Buttons:** 
+  - Start, Pause, Resume
+  - Volume controls (Mute/Unmute)
+  - Menu navigation buttons
+  - Login/Signup forms
+
+---
+
+## Player Mechanics
+
+### Movement
+- Vertical movement only (up/down)
+- Constrained within canvas boundaries
+- Immediate response (no acceleration lag)
+- Configurable speed constant
+- Smooth animation frame updates
+
+### Collision
+- Pixel-perfect collision detection
+- Immediate game over on asteroid hit
+- Explosion sound effect plays
+- Score saved to database automatically
+
+---
+
+## Asteroids & Obstacles
+
+### Visual Design
+- **Dynamic Rotation:** Each asteroid rotates at unique speed
+- **Color Variation:** Random colors for visual distinction
+- **Size Variance:** Multiple size categories
+- **Drop Shadow:** Enhanced depth perception
+- **Sprite/Fallback:** PNG images with polygon fallback
+
+### Spawning System
+- Spawn at canvas right edge
+- Move left across screen
+- Variable spawn intervals based on difficulty
+- Speed increases with elapsed time
+- Frequency scales with survival duration
+
+### Difficulty Progression
+```javascript
+Spawn Interval = Base - (ElapsedTime * ScaleFactor)
+Asteroid Speed = Base + (ElapsedTime * SpeedIncrease)
+```
+
+---
+
+## Scoring System
+
+### Score Calculation
+- **Primary:** Time-based (seconds survived)
+- **Display:** Real-time on HUD
+- **Persistence:** Saved to SQLite database via API
+- **High Score:** Tracked per player
+
+### Score Submission
+- Automatic on game over
+- Associated with current player name
+- Stored in `PlayerScore` table
+- Retrievable via scoreboard
+
+---
+
+## Authentication System
+
+### Session Management
+- **Storage:** sessionStorage (cleared on refresh)
+- **Security:** No persistent sessions across page loads
+- **Auto-Logout:** On page refresh, tab close, or manual logout
+
+### User Accounts
+- **Storage:** localStorage for account data
+- **Demo Account:** 
+  ```
+  Email: demo@test.com
+  Password: demo123
+  Role: Admin
+  ```
+- **Password Requirements:** Minimum 6 characters
+- **Validation:** Email format, password confirmation
+
+### Login Flow
+```
+Page Load → Session Check → Login Required
+     ↓
+Login Form → Validate → Create Session
+     ↓
+Main Menu → Role-Based Menu Visibility
+     ↓
+Game Access Based on Role
+```
+
+---
+
+## Technical Architecture
+
+### Frontend Modules (ES6)
+
+| Module | Responsibility | Lines |
+|--------|----------------|-------|
+| `main.js` | System initialization, module orchestration | ~177 |
+| `game.js` | Game loop, state management, pause/resume | ~250 |
+| `player.js` | Player model, keyboard input, movement | ~120 |
+| `asteroids.js` | Spawn system, updates, collision | ~180 |
+| `renderer.js` | Canvas drawing, visual effects | ~220 |
+| `audio.js` | Audio playback, volume controls | ~90 |
+| `ui.js` | Button handlers, DOM events | ~100 |
+| `menu.js` | Navigation, RBAC visibility | ~767 |
+| `api.js` | Backend HTTP client | ~150 |
+| `auth.js` | Authentication logic, session | ~128 |
+| `login.js` | Login/signup handlers | ~182 |
+| `utils.js` | Collision detection, helpers | ~80 |
+| `config.js` | Constants, tuning parameters | ~50 |
+
+### Backend Architecture
+
+**ASP.NET Core 8.0 Web API**
+```
+Program.cs
+├── Minimal API Endpoints
+├── CORS Configuration
+├── Entity Framework Core
+└── SQLite Database
+
+Data Layer:
+├── GameDbContext (EF Core)
+├── Entities: GamePlayer, PlayerScore, GameAsteroid, User
+├── Services: EF_PlayerService, EF_AsteroidService
+└── Migrations: Automatic schema management
+```
+
+---
+
+## Runtime State Management
+
+### Game State (`game.js`)
+```javascript
+{
+  gameStarted: boolean,
+  gameOver: boolean,
+  paused: boolean,
+  elapsedTime: number,
+  score: number,
+  highScore: number
+}
+```
+
+### Player State (`player.js`)
+```javascript
+{
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  speed: number,
+  image: HTMLImageElement
+}
+```
+
+### Asteroid State (`asteroids.js`)
+```javascript
+[
+  {
+    x: number,
+    y: number,
+    size: number,
+    speed: number,
+    rotation: number,        // NEW: Rotation angle
+    rotationSpeed: number,   // NEW: Rotation velocity
+    color: string,           // NEW: Random color
+    image: HTMLImageElement
+  }
+]
+```
+
+---
+
+## Data Persistence
+
+### Frontend Storage
+- **localStorage:** User accounts (email, password hash, isAdmin)
+- **sessionStorage:** Current user session (cleared on refresh)
+
+### Backend Database (SQLite)
+
+**Tables:**
+```sql
+GamePlayers (Id, Name, CreatedAt)
+PlayerScores (Id, PlayerId, PlayerName, Score, AchievedAt)
+GameAsteroids (Id, Size, Speed, Material, Type, SpawnRate)
+Users (Id, Name, Email, PasswordHash, IsAdmin)
 
 Accessibility & UX
 ------------------
@@ -226,3 +457,74 @@ Asteroid Dodger is a simple 2D game where the player controls a spaceship (or an
 
 - Inspired by classic dodger-style games.
 - Built using standard web technologies.
+---
+
+## User Interface Design
+
+### HUD Elements (In-Game)
+- **Top Left:** Current Score / Time Survived
+- **Top Right:** High Score  
+- **Bottom Right:** Pause Button, Volume Controls
+- **Center (Paused):** "PAUSED" overlay text
+
+### Menu System
+- **Color Scheme:** Neon green (#0f0) on dark background
+- **Overlays:** Semi-transparent modals
+- **Buttons:** Hover glow effects, uppercase text
+- **Responsive:** Adapts to window size
+
+---
+
+## Art & Audio Assets
+
+### Visual Design
+**Sprites:** Player ship, asteroids with rotation and color variation  
+**Effects:** Drop shadows, starfield background  
+**Color Palette:** Neon green primary, dark space background
+
+### Audio System
+- Background music loop
+- Collision sound effects
+- Volume controls with mute toggle
+- Persistent volume settings
+
+---
+
+## API Endpoints
+
+```
+GET    /players              - List all players
+POST   /players              - Create player
+DELETE /players/{name}       - Delete player
+POST   /players/{name}/score - Submit score
+GET    /scores               - Get leaderboard
+POST   /generate             - Generate sample data (admin)
+```
+
+---
+
+## Future Enhancements
+
+1. Power-ups (shields, slow-motion)
+2. Multiple difficulty modes
+3. Achievements system
+4. Global leaderboards
+5. Mobile touch controls
+6. Multiplayer mode
+7. Boss encounters
+8. Enhanced visual effects
+9. WebSocket real-time updates
+10. Progressive Web App features
+
+---
+
+## Credits
+
+**Developer:** VirajGandhi07  
+**Repository:** https://github.com/VirajGandhi07/asteroid-dodger  
+**Stack:** JavaScript ES6, ASP.NET Core 8.0, SQLite  
+**License:** MIT
+
+---
+
+**Version 2.0 - December 4, 2025**

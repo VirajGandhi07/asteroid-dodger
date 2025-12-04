@@ -1,8 +1,8 @@
 # Asteroid Dodger
 
-A complete 2D dodger game combining a vanilla JavaScript frontend with an ASP.NET Core backend API. Pilot your rocket to dodge incoming asteroids, track high scores, and manage player data through a RESTful API backed by SQLite.
+A full-stack 2D space survival game featuring role-based access control, secure authentication, and real-time gameplay. Pilot your rocket through an asteroid field while the game tracks your performance through a complete ASP.NET Core backend with SQLite persistence.
 
-**Status:** Full-stack implementation with browser-based game and REST API for data persistence.
+**Status:** Production-ready full-stack application with secure authentication, admin controls, and persistent data storage.
 
 ---
 
@@ -12,6 +12,8 @@ A complete 2D dodger game combining a vanilla JavaScript frontend with an ASP.NE
 - [Features](#features)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
+- [Authentication & Security](#authentication--security)
+- [User Roles](#user-roles)
 - [Frontend – Browser Game](#frontend--browser-game)
 - [Backend – ASP.NET Core API](#backend--aspnet-core-api)
 - [API Documentation](#api-documentation)
@@ -26,92 +28,177 @@ A complete 2D dodger game combining a vanilla JavaScript frontend with an ASP.NE
 
 ## Overview
 
-**Asteroid Dodger** is a full-stack web application:
+**Asteroid Dodger** is a complete full-stack web application featuring:
 
-- **Frontend:** HTML5 Canvas game with modular ES6 JavaScript, running on port 8000
-- **Backend:** ASP.NET Core 8.0 Web API with Entity Framework Core and SQLite, running on port 5000
-- **Database:** SQLite with EF migrations for players, scores, and asteroids management
-- **Communication:** CORS-enabled JSON REST API
+- **Frontend:** Modular ES6 JavaScript game with HTML5 Canvas rendering (Port 8000)
+- **Backend:** ASP.NET Core 8.0 Web API with Entity Framework Core (Port 5000)
+- **Database:** SQLite with automatic migrations
+- **Authentication:** Secure session-based login with role-based access control
+- **Features:** Admin management panel, player scoring system, dynamic asteroid rendering
 
 ---
 
 ## Features
 
-### Game Features
-- ✅ Real-time 2D gameplay on HTML5 Canvas
-- ✅ Responsive player controls (keyboard & mouse)
-- ✅ Progressive difficulty scaling with survival time
-- ✅ Audio system with background music and explosion effects
+### 🎮 Game Features
+- ✅ Real-time 2D gameplay with HTML5 Canvas
+- ✅ Dynamic asteroid spawning with rotation and color variation
+- ✅ Progressive difficulty scaling
+- ✅ Background music and sound effects
 - ✅ Pause/Resume functionality
-- ✅ Instructions modal overlay
-- ✅ Volume and mute controls
-- ✅ High score tracking (persistent)
+- ✅ Interactive instructions modal
+- ✅ Volume controls with mute toggle
+- ✅ Persistent high score tracking
 
-### Backend Features
-- ✅ RESTful API endpoints for players and asteroids
-- ✅ JWT authentication with BCrypt password hashing
-- ✅ Secure protected endpoints (authorization required)
-- ✅ User registration and login
-- ✅ Entity Framework Core with SQLite database
-- ✅ Automatic player creation on first score post
-- ✅ CRUD operations for player scores and asteroids
-- ✅ Database migrations and schema management
-- ✅ Legacy data migration from JSON file format
-- ✅ Global exception handling with standardized error responses
-- ✅ CORS support for localhost development
-- ✅ Data seeding for demo users and test data
+### 🔐 Authentication & Security
+- ✅ Secure login/signup system
+- ✅ Session-based authentication (cleared on page refresh)
+- ✅ Role-based access control (Admin vs Normal users)
+- ✅ Password validation (minimum 6 characters)
+- ✅ Demo admin account for testing
+- ✅ Automatic session cleanup on logout
+
+### 👥 User Management
+- ✅ Two user roles: Admin and Normal User
+- ✅ Admin panel with full game management
+- ✅ Normal users auto-start game with their profile
+- ✅ Automatic player creation in database
+- ✅ Score persistence per player
+
+### 🛠️ Backend Features
+- ✅ RESTful API endpoints
+- ✅ Entity Framework Core with SQLite
+- ✅ Automatic database migrations
+- ✅ CRUD operations for players, scores, and asteroids
+- ✅ Sample data generation for testing
+- ✅ CORS support for local development
+- ✅ Global error handling
 
 ---
 
 ## Quick Start
 
 ### Prerequisites
-- **Node.js/Python** (for frontend HTTP server)
+- **Python 3** or **Node.js** (for frontend HTTP server)
 - **.NET 8.0 SDK** (for backend API)
-- Modern browser with ES6 module support (Chrome, Firefox, Edge)
+- Modern browser with ES6 module support
 
-### 1. Clone & Navigate
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/VirajGandhi07/asteroid-dodger.git
 cd asteroid-dodger
 ```
 
-### 2. Start the Backend API
+### 2. Start Backend API
 
 ```bash
 cd DataManager/BackendApi
-
-# Build the project (first time only)
 dotnet build
-
-# Run the API server (will run on http://localhost:5000)
 dotnet run
 ```
 
-The API will start and automatically:
-- Create/migrate the SQLite database
-- Seed legacy player data if found in `DataStorage/players.json`
-- Listen on `http://localhost:5000`
+API will start on `http://localhost:5000` and automatically create/migrate the database.
 
-### 3. Start the Frontend (New Terminal)
+### 3. Start Frontend Server
 
 ```bash
 # From the asteroid-dodger root directory
 python3 -m http.server 8000
 ```
 
-Or use any static HTTP server:
+Or using Node.js:
 ```bash
-# Alternative: using Node.js
 npx http-server -p 8000
 ```
 
-### 4. Play the Game
+### 4. Access the Game
 
-Open your browser and navigate to: **`http://localhost:8000`**
+Navigate to **`http://localhost:8000`** in your browser.
 
-The game will automatically connect to the backend API at `http://localhost:5000`.
+### 5. Login
+
+Use the demo admin account:
+- **Email:** `demo@test.com`
+- **Password:** `demo123`
+
+Or create a new normal user account via the signup form.
+
+---
+
+## Authentication & Security
+
+### Login System
+- **Session-based authentication** using `sessionStorage`
+- Sessions are cleared on:
+  - Page refresh
+  - Browser tab/window close
+  - Manual logout
+- No persistent sessions across page loads for enhanced security
+
+### Demo Account
+```
+Email: demo@test.com
+Password: demo123
+Role: Admin
+```
+
+### User Registration
+- Users can sign up with name, email, and password
+- All new users are registered as **Normal Users** by default
+- Minimum password length: 6 characters
+- Email validation required
+
+---
+
+## User Roles
+
+### 👑 Admin Users
+**Menu Access:**
+- Play (with full sub-menu)
+- Scoreboard
+- Generate Sample Data
+- How to Play
+- Exit
+
+**Play Menu:**
+- Existing Player
+- New Player
+- List of Players
+- Asteroids Management
+
+**Game Over Options:**
+- Play Again
+- Change Player
+- New Player
+- Back to Menu
+
+**Capabilities:**
+- Full player management (create, rename, delete)
+- Asteroid database management
+- Generate sample data for testing
+- View all players and scores
+
+### 👤 Normal Users
+**Menu Access:**
+- Play (auto-starts game)
+- Scoreboard
+- How to Play
+- Exit
+
+**Game Flow:**
+- Clicking "Play" immediately starts the game with their signup name
+- Player automatically created in database
+- Scores saved to their profile
+
+**Game Over Options:**
+- Play Again
+- Back to Menu
+
+**Limitations:**
+- Cannot access player management
+- Cannot generate sample data
+- Cannot manage asteroids database
 
 ---
 
@@ -119,54 +206,50 @@ The game will automatically connect to the backend API at `http://localhost:5000
 
 ```
 asteroid-dodger/
-├── index.html                 # Main game page
-├── css/                       # Stylesheets
-│   ├── main.css              # Master CSS (imports all)
-│   ├── global.css
-│   ├── buttons.css
-│   ├── modal.css
-│   ├── menu.css
+├── index.html                 # Main game page with login modal
+├── css/                       # Modular stylesheets
+│   ├── main.css              # Master CSS imports
+│   ├── global.css            # Base styles
+│   ├── buttons.css           # Button styles
+│   ├── modal.css             # Modal overlays
+│   ├── menu.css              # Game menus
+│   ├── login.css             # Login/signup modal
 │   ├── start-menu.css
 │   ├── title.css
 │   └── volume-controls.css
-├── js/                        # ES6 module JavaScript
-│   ├── main.js               # Entry point, initializes modules
-│   ├── game.js               # Game loop and state management
-│   ├── player.js             # Player model and keyboard input
-│   ├── asteroids.js          # Asteroid spawn/update/collision
-│   ├── renderer.js           # Canvas drawing and HUD
-│   ├── audio.js              # Audio management
-│   ├── ui.js                 # UI button handlers
-│   ├── menu.js               # Menu system and event delegation
-│   ├── api.js                # Frontend API client for backend
-│   ├── utils.js              # Utility functions (collision, etc.)
-│   └── config.js             # Game constants
-├── images/                    # Game assets
+├── js/                        # ES6 modules
+│   ├── main.js               # Entry point
+│   ├── game.js               # Game loop and state
+│   ├── player.js             # Player mechanics
+│   ├── asteroids.js          # Asteroid system
+│   ├── renderer.js           # Canvas rendering
+│   ├── audio.js              # Audio system
+│   ├── ui.js                 # UI controls
+│   ├── menu.js               # Menu navigation & RBAC
+│   ├── api.js                # Backend API client
+│   ├── auth.js               # Authentication logic
+│   ├── login.js              # Login/signup handlers
+│   ├── utils.js              # Utilities
+│   └── config.js             # Configuration
+├── images/                    # Game sprites
 │   ├── asteroid1.png
 │   └── rocket1.png
-├── sounds/                    # Audio assets
+├── sounds/                    # Audio files
 │   └── explosion-80108.mp3
-├── DataManager/               # Backend .NET project
-│   ├── BackendApi/           # Main ASP.NET Core API
-│   │   ├── Program.cs        # API configuration and endpoints
-│   │   ├── appsettings.json  # Settings (database, JWT, CORS)
-│   │   ├── BackendApi.csproj # Project file
-│   │   ├── Data/
-│   │   │   ├── GameDbContext.cs        # Entity Framework context
-│   │   │   ├── Migrations/             # EF migrations
-│   │   │   ├── GamePlayer.cs           # Player entity
-│   │   │   ├── PlayerScore.cs          # Score entity
-│   │   │   ├── GameAsteroid.cs         # Asteroid entity
-│   │   │   └── User.cs                 # User entity (for auth)
-│   │   └── Services/
-│   │       ├── EF_PlayerService.cs     # Player business logic
-│   │       └── EF_AsteroidService.cs   # Asteroid business logic
-│   ├── AsteroidManager/      # (Unused - legacy)
-│   ├── GameLauncher/         # (Unused - legacy)
-│   └── PlayerManager/        # (Unused - legacy)
-├── DataStorage/              # Legacy JSON data
-│   ├── players.json
-│   └── asteroids.json
+├── DataManager/BackendApi/   # ASP.NET Core API
+│   ├── Program.cs            # API endpoints & configuration
+│   ├── appsettings.json      # Settings
+│   ├── BackendApi.csproj     # Project file
+│   ├── Data/
+│   │   ├── GameDbContext.cs  # EF Core context
+│   │   ├── Migrations/       # Database migrations
+│   │   ├── GamePlayer.cs     # Player entity
+│   │   ├── PlayerScore.cs    # Score entity
+│   │   ├── GameAsteroid.cs   # Asteroid entity
+│   │   └── User.cs           # User entity
+│   └── Services/
+│       ├── EF_PlayerService.cs
+│       └── EF_AsteroidService.cs
 ├── GDD.md                    # Game Design Document
 └── README.md                 # This file
 ```
@@ -175,23 +258,25 @@ asteroid-dodger/
 
 ## Frontend – Browser Game
 
-### Game Files (`js/`)
+### JavaScript Modules (`js/`)
 
-| File | Purpose |
-|------|---------|
-| `main.js` | Orchestrates initialization of all modules |
-| `game.js` | Core game loop, state (started/paused/over), high score management |
-| `player.js` | Player model, position, keyboard input handling |
-| `asteroids.js` | Asteroid spawning, updates, collision tracking |
-| `renderer.js` | Canvas drawing (player, asteroids, HUD, menus) |
-| `audio.js` | Audio playback, volume/mute control |
-| `ui.js` | Wires buttons to game callbacks |
-| `menu.js` | Menu navigation and event delegation |
-| `api.js` | HTTP client for communicating with backend |
-| `utils.js` | Collision detection, spawn interval calculation |
-| `config.js` | Tunable constants (speeds, timings, difficulty) |
+| Module | Responsibility |
+|--------|----------------|
+| `main.js` | Initializes all game systems and orchestrates modules |
+| `game.js` | Game loop, state management, pause/resume logic |
+| `player.js` | Player movement, keyboard input, boundaries |
+| `asteroids.js` | Spawn system, asteroid updates, collision detection |
+| `renderer.js` | Canvas rendering with rotation and visual effects |
+| `audio.js` | Background music, sound effects, volume controls |
+| `ui.js` | UI button event handlers |
+| `menu.js` | Menu system, navigation, role-based visibility |
+| `api.js` | HTTP client for backend communication |
+| `auth.js` | User authentication, session management, role checking |
+| `login.js` | Login/signup form handlers |
+| `utils.js` | Collision detection, helper functions |
+| `config.js` | Game constants and tuning parameters |
 
-### Key Game Features
+### Visual Features
 
 **Controls:**
 - ⬆️ Arrow Up: Move rocket up
