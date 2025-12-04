@@ -1,4 +1,5 @@
 // Authentication module: handles login/signup with localStorage
+// User accounts stored in localStorage, active session in sessionStorage (cleared on refresh)
 
 const USERS_STORAGE_KEY = 'asteroid_dodger_users';
 const CURRENT_USER_KEY = 'asteroid_dodger_current_user';
@@ -12,11 +13,31 @@ const DEMO_USER = {
 // Initialize demo user on first load
 export function initializeAuth() {
   const users = getAllUsers();
-  const demoExists = users.some(u => u.email === DEMO_USER.email);
+  const demoIndex = users.findIndex(u => u.email === DEMO_USER.email);
   
-  if (!demoExists) {
+  if (demoIndex === -1) {
+    // Demo user doesn't exist, add it
     users.push({ ...DEMO_USER });
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    console.log('[Auth] Demo user created');
+  } else {
+    // Demo user exists, ensure it has admin flag
+    if (!users[demoIndex].isAdmin) {
+      users[demoIndex].isAdmin = true;
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+      console.log('[Auth] Demo user updated with admin flag');
+    }
+  }
+  
+  // If current user is demo user, update their session to ensure admin flag
+  const currentUser = getCurrentUser();
+  if (currentUser && currentUser.email === DEMO_USER.email && !currentUser.isAdmin) {
+    sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify({
+      name: DEMO_USER.name,
+      email: DEMO_USER.email,
+      isAdmin: true
+    }));
+    console.log('[Auth] Current demo user session updated with admin flag');
   }
 }
 
@@ -73,8 +94,8 @@ export function loginUser(email, password) {
     return { success: false, error: 'Incorrect password' };
   }
   
-  // Set current user
-  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify({
+  // Set current user in sessionStorage (cleared on page refresh for security)
+  sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify({
     name: user.name,
     email: user.email,
     isAdmin: user.isAdmin || false
@@ -83,15 +104,15 @@ export function loginUser(email, password) {
   return { success: true, user: { name: user.name, email: user.email, isAdmin: user.isAdmin || false } };
 }
 
-// Get current logged-in user
+// Get current logged-in user from sessionStorage
 export function getCurrentUser() {
-  const userJSON = localStorage.getItem(CURRENT_USER_KEY);
+  const userJSON = sessionStorage.getItem(CURRENT_USER_KEY);
   return userJSON ? JSON.parse(userJSON) : null;
 }
 
 // Logout current user
 export function logout() {
-  localStorage.removeItem(CURRENT_USER_KEY);
+  sessionStorage.removeItem(CURRENT_USER_KEY);
 }
 
 // Check if user is authenticated
@@ -102,5 +123,6 @@ export function isAuthenticated() {
 // Check if current user is admin
 export function isAdmin() {
   const user = getCurrentUser();
+  console.log('[Auth] isAdmin check - user:', user, 'isAdmin:', user ? user.isAdmin : 'no user');
   return user && user.isAdmin === true;
 }

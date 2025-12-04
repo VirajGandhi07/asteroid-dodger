@@ -36,7 +36,7 @@ export function initializeLoginForm() {
   
   console.log('[Login] Initializing login form');
   
-  // Check if already logged in
+  // Check if already logged in (session storage - cleared on refresh)
   if (auth.isAuthenticated()) {
     console.log('[Login] User already authenticated, hiding login modal');
     loginModal.classList.add('hidden');
