@@ -145,8 +145,8 @@ function showMenu(menuName) {
     menuElements[menuName].classList.add('active');
     currentMenu = menuName;
     
-    // Update admin visibility when showing main or play menu
-    if (menuName === 'main' || menuName === 'play') {
+    // Update admin visibility when showing main, play, or game over menu
+    if (menuName === 'main' || menuName === 'play' || menuName === 'gameOver') {
       updateAdminMenuVisibility();
     }
   }
@@ -194,7 +194,23 @@ function handleMainMenuAction(action) {
   switch (action) {
     case 'play':
       previousMenu = 'main';
-      showMenu('play');
+      // Check if user is admin
+      const isUserAdmin = auth.isAdmin();
+      console.log('[Menu] Play clicked. Is admin:', isUserAdmin);
+      if (isUserAdmin) {
+        // Admin sees the play menu with all options
+        console.log('[Menu] Admin user - showing play menu');
+        showMenu('play');
+      } else {
+        // Normal user: auto-start game with their signup name
+        console.log('[Menu] Normal user - auto-starting game');
+        const user = auth.getCurrentUser();
+        if (user && user.name) {
+          autoStartGameForNormalUser(user.name);
+        } else {
+          showAlert('Error', 'Unable to retrieve user information');
+        }
+      }
       break;
     case 'scoreboard':
       previousMenu = 'main';
@@ -479,6 +495,29 @@ function hideMenuAndStartGame() {
     if (gameInstance.start) {
       gameInstance.start();
     }
+  }
+}
+
+// Auto-start game for normal users with their signup name
+async function autoStartGameForNormalUser(playerName) {
+  currentPlayerName = playerName;
+  console.log('[Menu] Normal user auto-starting game with player:', currentPlayerName);
+  
+  // Check if player exists in database, if not create them
+  try {
+    const players = await api.getAllPlayers();
+    const playerExists = players.some(p => p.name.toLowerCase() === playerName.toLowerCase());
+    
+    if (!playerExists) {
+      console.log('[Menu] Creating new player in database:', playerName);
+      await api.addPlayer(playerName);
+    }
+    
+    hideMenuAndStartGame();
+  } catch (err) {
+    console.error('[Menu] Error setting up player:', err);
+    // Still start the game even if database operation fails
+    hideMenuAndStartGame();
   }
 }
 

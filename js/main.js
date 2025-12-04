@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update admin menu visibility based on current user role
   updateAdminMenuVisibility();
   
-  // Add logout button to menu after login
+  // Add logout button to menu if user is authenticated (after login redirect)
   if (auth.isAuthenticated()) {
     setTimeout(() => addLogoutToMenu(), 500);
   }
