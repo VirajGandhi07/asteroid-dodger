@@ -7,7 +7,9 @@ import { isColliding, getAsteroidSpawnInterval } from './utils.js';
 import createGame from './game.js';
 import { STAR_COUNT, STAR_SPEED, PLAYER_SCALE } from './config.js';
 import * as api from './api.js';
-import { setGameInstance, startGame, onGameOver as menuOnGameOver } from './menu.js';
+import { setGameInstance, startGame, onGameOver as menuOnGameOver, updateAdminMenuVisibility } from './menu.js';
+import { initializeLoginForm, addLogoutToMenu } from './login.js';
+import * as auth from './auth.js';
 
 let ui = null;
 // Track whether opening instructions caused a pause so we only resume when appropriate
@@ -147,6 +149,29 @@ window.onCloseInstructionsFromMenu = () => {
     console.log('[Main] Game not paused or not started, skipping resume');
   }
 };
+
+// Initialize login system
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('[Main] DOM loaded, initializing login');
+  initializeLoginForm();
+  
+  // Update admin menu visibility based on current user role
+  updateAdminMenuVisibility();
+  
+  // Add logout button to menu after login
+  if (auth.isAuthenticated()) {
+    setTimeout(() => addLogoutToMenu(), 500);
+  }
+});
+
+// Handle logout action
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-action]');
+  if (btn && btn.dataset.action === 'logout') {
+    auth.logout();
+    window.location.reload();
+  }
+});
 
 // Start with menu system
 startGame();
