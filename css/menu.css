@@ -71,7 +71,12 @@
   box-shadow: 0 4px 15px rgba(0, 255, 0, 0.3);
   font-family: 'Trebuchet MS', sans-serif;
   width: 100% !important;
-  display: block !important;
+  display: block;
+}
+
+/* Admin-only buttons hidden by default, shown only for admin users */
+.menu-btn.admin-only {
+  display: none !important;
 }
 
 .menu-btn:hover {

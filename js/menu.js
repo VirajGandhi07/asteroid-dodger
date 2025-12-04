@@ -1,4 +1,5 @@
 import * as api from './api.js';
+import * as auth from './auth.js';
 
 // Menu state
 let currentMenu = 'main';
@@ -143,6 +144,11 @@ function showMenu(menuName) {
   if (menuElements[menuName]) {
     menuElements[menuName].classList.add('active');
     currentMenu = menuName;
+    
+    // Update admin visibility when showing main or play menu
+    if (menuName === 'main' || menuName === 'play') {
+      updateAdminMenuVisibility();
+    }
   }
   // Hide game elements when showing menu
   if (gameCanvas) gameCanvas.style.display = 'none';
@@ -669,7 +675,28 @@ export function setGameInstance(game) {
   gameInstance = game;
 }
 
+// Update admin-only menu visibility based on user role
+export function updateAdminMenuVisibility() {
+  const isUserAdmin = auth.isAdmin();
+  const adminElements = document.querySelectorAll('.menu-btn.admin-only');
+  
+  console.log('[Menu] Updating admin visibility. Is admin:', isUserAdmin, 'Elements found:', adminElements.length);
+  
+  adminElements.forEach(el => {
+    if (isUserAdmin) {
+      // Show admin buttons by removing the admin-only class and re-adding without the hiding
+      el.style.display = 'block';
+      el.style.setProperty('display', 'block', 'important');
+    } else {
+      // Hide admin buttons
+      el.style.display = 'none';
+      el.style.setProperty('display', 'none', 'important');
+    }
+  });
+}
+
 export function startGame() {
+  updateAdminMenuVisibility(); // Show/hide admin options
   showMenu('main');
 }
 

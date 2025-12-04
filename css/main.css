@@ -2,6 +2,7 @@
 /* Import all modular CSS files */
 
 @import url('global.css');
+@import url('login.css');
 @import url('title.css');
 @import url('buttons.css');
 @import url('modal.css');
