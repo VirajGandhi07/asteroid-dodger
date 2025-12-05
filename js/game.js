@@ -1,4 +1,6 @@
 // Game module: owns game state, loop, and orchestration
+import * as api from './api.js';
+
 export default function createGame(deps) {
   const {
     canvas,
@@ -18,7 +20,8 @@ export default function createGame(deps) {
     stars
   } = deps;
 
-  let highScore = Number(localStorage.getItem('highScore')) || 0; // Track high score
+  let highScore = 0; // Global highest score across all players
+  let highScoreFetched = false; // Track if we've fetched from DB
   let gameStarted = false; // Game started flag
   let gameOver = false;    // Game over flag
   let paused = false;      // Pause flag
@@ -29,6 +32,23 @@ export default function createGame(deps) {
 
   // onGameOver(score) optional callback
   const onGameOver = deps.onGameOver;
+
+  // Fetch global highest score from database (across all players)
+  async function fetchGlobalHighScore() {
+    if (highScoreFetched) return;
+    try {
+      const scores = await api.getTopScores();
+      if (scores && scores.length > 0) {
+        // Get the highest score from all players
+        highScore = Math.max(...scores.map(s => s.highScore || 0));
+        console.log('[Game] Loaded global high score:', highScore);
+      }
+      highScoreFetched = true;
+    } catch (err) {
+      console.warn('[Game] Could not fetch global high score:', err);
+      highScoreFetched = true;  // Don't retry
+    }
+  }
 
   function update(deltaTime) {
     if (gameOver || paused || !gameStarted) return; // Skip update if not active
@@ -60,11 +80,8 @@ export default function createGame(deps) {
       }
     }
 
-    // Update high score
-    if (elapsedTime > highScore) {
-      highScore = elapsedTime;
-      localStorage.setItem('highScore', highScore);
-    }
+    // Note: highScore is now global across all players, fetched from DB
+    // Individual scores are saved to DB via onGameOver callback
 
     // Spawn new asteroids if interval reached
     asteroidSpawnTimer += deltaTime;
@@ -95,13 +112,29 @@ export default function createGame(deps) {
 
   function start() {
     if (gameStarted) return; // Only start once
-    gameStarted = true;
-    lastTime = Date.now();
-    rafId = requestAnimationFrame(loop); // Start loop
-    if (!bgMusic.started) { // Play background music
-      bgMusic.play().catch(() => {});
-      bgMusic.started = true;
-    }
+    // Fetch global high score before starting game
+    fetchGlobalHighScore().then(() => {
+      if (!gameStarted) {
+        gameStarted = true;
+        lastTime = Date.now();
+        rafId = requestAnimationFrame(loop);
+        if (!bgMusic.started) {
+          bgMusic.play().catch(() => {});
+          bgMusic.started = true;
+        }
+      }
+    }).catch(() => {
+      // Even if fetch fails, start the game
+      if (!gameStarted) {
+        gameStarted = true;
+        lastTime = Date.now();
+        rafId = requestAnimationFrame(loop);
+        if (!bgMusic.started) {
+          bgMusic.play().catch(() => {});
+          bgMusic.started = true;
+        }
+      }
+    });
   }
 
   function restart() {
@@ -110,7 +143,8 @@ export default function createGame(deps) {
     gameOver = false; paused = false;       // Reset state
     elapsedTime = 0; lastTime = Date.now(); // Reset timers
     asteroidSpawnTimer = 0;
-    highScore = Number(localStorage.getItem('highScore')) || 0; // Reload high score
+    highScoreFetched = false;  // Refetch high score on restart
+    fetchGlobalHighScore();     // Reload global high score from database
     bgMusic.currentTime = 0; bgMusic.play(); // Restart music
   }
 
