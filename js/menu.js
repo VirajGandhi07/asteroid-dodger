@@ -673,6 +673,26 @@ document.addEventListener('click', (e) => {
   
   const action = btn.dataset.action;
   console.log('[Menu] Action clicked:', action, 'currentMenu:', currentMenu);
+  
+  // Handle back-instructions first, before checking currentMenu
+  if (action === 'back-instructions') {
+    console.log('[Menu] Back-instructions clicked');
+    
+    // Hide instructions modal first
+    if (menuElements.instructions) {
+      menuElements.instructions.classList.remove('active');
+      console.log('[Menu] Instructions modal hidden');
+    }
+    
+    // Always try to resume via the callback - it handles the game state check internally
+    if (window.onCloseInstructionsFromMenu) {
+      console.log('[Menu] Calling onCloseInstructionsFromMenu callback');
+      window.onCloseInstructionsFromMenu();
+    } else {
+      console.log('[Menu] No onCloseInstructionsFromMenu callback found');
+    }
+    return; // Exit early
+  }
 
   if (currentMenu === 'main') handleMainMenuAction(action);
   else if (currentMenu === 'play') handlePlayMenuAction(action);
@@ -683,29 +703,6 @@ document.addEventListener('click', (e) => {
   else if (action === 'back-players-list') showMenu('play');
   else if (action === 'back-list') showMenu('asteroids');
   else if (action === 'back-generate') showMenu('main');
-  else if (action === 'back-instructions') {
-    console.log('[Menu] Back-instructions clicked. Game started?', gameInstance && gameInstance.isStarted && gameInstance.isStarted());
-    
-    // Hide instructions modal first
-    if (menuElements.instructions) {
-      menuElements.instructions.classList.remove('active');
-      console.log('[Menu] Instructions modal hidden');
-    }
-    
-    // If game is running, resume it and update UI
-    if (gameInstance && gameInstance.isStarted && gameInstance.isStarted()) {
-      console.log('[Menu] Game is running, resuming...');
-      // Call the resume callback from main.js which handles game resume and button text update
-      if (window.onCloseInstructionsFromMenu) {
-        window.onCloseInstructionsFromMenu();
-      }
-    } else {
-      console.log('[Menu] Game not running, showing previous menu');
-      // Return to previous menu if not in game
-      if (previousMenu && previousMenu !== 'instructions') showMenu(previousMenu);
-      else showMenu('main');
-    }
-  }
   else if (action === 'generate-confirm') handleGenerateConfirm();
 });
 
