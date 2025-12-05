@@ -103,10 +103,26 @@ ui = initUI({
   getGameOver: () => game.isGameOver(),
   getGameState: () => game.getState(),
   onTogglePause: () => game.togglePause(),
+  onPause: () => game.pause(),
+  onResume: () => game.resume(),
   onRestart: () => game.restart(),
-  onResetHighScore: () => {
-    game.resetHighScore && game.resetHighScore();
-    renderDraw(ctx, canvas, player, asteroids, rocketImg, asteroidImg, Object.assign(game.getState(), { stars }));
+  onReturnToMenu: () => {
+    // Stop the game without saving score
+    game.pause();
+    // Hide game elements
+    const gameCanvas = document.getElementById('gameCanvas');
+    const gameButtons = document.getElementById('gameButtons');
+    const volumeControls = document.getElementById('volumeControls');
+    if (gameCanvas) gameCanvas.style.display = 'none';
+    if (gameButtons) gameButtons.style.display = 'none';
+    if (volumeControls) volumeControls.style.display = 'none';
+    // Show main menu
+    const mainMenu = document.getElementById('mainMenu');
+    if (mainMenu) {
+      mainMenu.classList.add('active');
+      // Update admin visibility
+      updateAdminMenuVisibility();
+    }
   },
   onPauseForInstructions: () => {
     // Pause the game and audio when opening instructions, but only if the game was running.
