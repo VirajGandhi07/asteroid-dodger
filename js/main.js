@@ -7,7 +7,7 @@ import { isColliding, getAsteroidSpawnInterval } from './utils.js';
 import createGame from './game.js';
 import { STAR_COUNT, STAR_SPEED, PLAYER_SCALE } from './config.js';
 import * as api from './api.js';
-import { setGameInstance, startGame, onGameOver as menuOnGameOver, updateAdminMenuVisibility } from './menu.js';
+import { setGameInstance, startGame, onGameOver as menuOnGameOver, updateAdminMenuVisibility, getCurrentPlayerName } from './menu.js';
 import { initializeLoginForm, addLogoutToMenu } from './login.js';
 import * as auth from './auth.js';
 
@@ -80,6 +80,7 @@ game = createGame({
   explosionSound,
   getMuted,
   stars,
+  currentPlayerName: getCurrentPlayerName(),  // NEW: pass current player name
   onGameOver: (score) => {
     menuOnGameOver(score);
   }

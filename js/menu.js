@@ -714,6 +714,11 @@ export function setGameInstance(game) {
   gameInstance = game;
 }
 
+// Get current player name
+export function getCurrentPlayerName() {
+  return currentPlayerName;
+}
+
 // Update admin-only menu visibility based on user role
 export function updateAdminMenuVisibility() {
   const isUserAdmin = auth.isAdmin();
