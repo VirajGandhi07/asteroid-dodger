@@ -677,6 +677,9 @@ document.addEventListener('click', (e) => {
   // Handle back-instructions first, before checking currentMenu
   if (action === 'back-instructions') {
     console.log('[Menu] Back-instructions clicked');
+    console.log('[Menu] Current previousMenu:', previousMenu);
+    console.log('[Menu] Game instance exists:', !!gameInstance);
+    console.log('[Menu] Game started:', gameInstance && gameInstance.isStarted && gameInstance.isStarted());
     
     // Hide instructions modal first
     if (menuElements.instructions) {
@@ -684,12 +687,33 @@ document.addEventListener('click', (e) => {
       console.log('[Menu] Instructions modal hidden');
     }
     
-    // Always try to resume via the callback - it handles the game state check internally
-    if (window.onCloseInstructionsFromMenu) {
-      console.log('[Menu] Calling onCloseInstructionsFromMenu callback');
-      window.onCloseInstructionsFromMenu();
+    // Check if game is actually running
+    if (gameInstance && gameInstance.isStarted && gameInstance.isStarted()) {
+      // Game is running - resume it
+      console.log('[Menu] Game is running, calling resume callback');
+      if (window.onCloseInstructionsFromMenu) {
+        window.onCloseInstructionsFromMenu();
+      }
     } else {
-      console.log('[Menu] No onCloseInstructionsFromMenu callback found');
+      // No game running - return to previous menu
+      console.log('[Menu] No game running, showing menu:', previousMenu || 'main');
+      const targetMenu = previousMenu || 'main';
+      
+      // Manually show the target menu
+      Object.values(menuElements).forEach(el => {
+        if (el) el.classList.remove('active');
+      });
+      
+      if (menuElements[targetMenu]) {
+        menuElements[targetMenu].classList.add('active');
+        currentMenu = targetMenu;
+        console.log('[Menu] Activated menu:', targetMenu);
+      }
+      
+      // Update admin visibility
+      if (targetMenu === 'main' || targetMenu === 'play' || targetMenu === 'gameOver') {
+        updateAdminMenuVisibility();
+      }
     }
     return; // Exit early
   }
@@ -709,11 +733,6 @@ document.addEventListener('click', (e) => {
 // Export public API for main.js to call
 export function setGameInstance(game) {
   gameInstance = game;
-}
-
-// Get current player name
-export function getCurrentPlayerName() {
-  return currentPlayerName;
 }
 
 // Update admin-only menu visibility based on user role

@@ -7,13 +7,11 @@ import { isColliding, getAsteroidSpawnInterval } from './utils.js';
 import createGame from './game.js';
 import { STAR_COUNT, STAR_SPEED, PLAYER_SCALE } from './config.js';
 import * as api from './api.js';
-import { setGameInstance, startGame, onGameOver as menuOnGameOver, updateAdminMenuVisibility, getCurrentPlayerName } from './menu.js';
+import { setGameInstance, startGame, onGameOver as menuOnGameOver, updateAdminMenuVisibility } from './menu.js';
 import { initializeLoginForm, addLogoutToMenu } from './login.js';
 import * as auth from './auth.js';
 
 let ui = null;
-// Track whether opening instructions caused a pause so we only resume when appropriate
-let instructionsPausedByUI = false;
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -25,19 +23,14 @@ rocketImg.src = "images/rocket1.png";
 // Load asteroid image
 const asteroidImg = new Image();
 asteroidImg.src = "images/asteroid1.png";
-// Audio is handled in `audio.js` module; initialize controls
-initAudio();
-// Initialize player input and position (game callbacks wired after game is created)
 
-// Player is provided by `player.js`; ensure it's initialized
+initAudio();
 
 // Auto-scale rocket when loaded
 rocketImg.onload = () => {
   player.width = rocketImg.width * PLAYER_SCALE;
   player.height = rocketImg.height * PLAYER_SCALE;
 };
-
-// Asteroids are managed by `asteroids.js`
 
 // Stars for background
 let stars = [];
@@ -49,10 +42,8 @@ for (let i = 0; i < STAR_COUNT; i++) {
   });
 }
 
-// Game is handled by `game.js`
 let game = null;
 
-// Update stars
 function updateStars(deltaTime) {
   for (let star of stars) {
     star.x -= STAR_SPEED * deltaTime;
@@ -60,7 +51,6 @@ function updateStars(deltaTime) {
   }
 }
 
-// Initialize UI (wires DOM handlers) with callbacks into game logic
 // Create and initialize game module with required dependencies
 game = createGame({
   canvas,
@@ -80,7 +70,6 @@ game = createGame({
   explosionSound,
   getMuted,
   stars,
-  currentPlayerName: getCurrentPlayerName(),  // NEW: pass current player name
   onGameOver: (score) => {
     menuOnGameOver(score);
   }
@@ -125,7 +114,6 @@ ui = initUI({
     }
   },
   onPauseForInstructions: () => {
-    // Pause the game and audio when opening instructions, but only if the game was running.
     if (game.isStarted() && !game.getState().paused) {
       game.pause();
       if (ui && ui.setPauseButtonText) ui.setPauseButtonText('Resume Game');
@@ -133,14 +121,10 @@ ui = initUI({
     }
   },
   onCloseInstructions: () => {
-    // Resume game/audio only if UI paused it when opening instructions
-    console.log('[Main] onCloseInstructions called. Game paused?', game.isStarted() && game.getState().paused);
     if (game.isStarted() && game.getState().paused) {
       game.resume();
-      console.log('[Main] Game resumed');
       if (ui && ui.setPauseButtonText) {
         ui.setPauseButtonText('Pause Game');
-        console.log('[Main] Pause button text updated to Pause Game');
       }
       if (game.isStarted()) bgMusic.play();
     }
@@ -152,30 +136,21 @@ ui = initUI({
 
 // Expose callback to window for menu.js to call when closing instructions during gameplay
 window.onCloseInstructionsFromMenu = () => {
-  console.log('[Main] onCloseInstructionsFromMenu called. Game started?', game.isStarted());
   if (game.isStarted() && game.getState().paused) {
-    console.log('[Main] Resuming game from instructions close');
     game.resume();
-    console.log('[Main] Game resumed, updating button text');
     if (ui && ui.setPauseButtonText) {
       ui.setPauseButtonText('Pause Game');
-      console.log('[Main] Button text updated to Pause Game');
     }
     if (game.isStarted()) bgMusic.play();
-  } else {
-    console.log('[Main] Game not paused or not started, skipping resume');
   }
 };
 
 // Initialize login system
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('[Main] DOM loaded, initializing login');
   initializeLoginForm();
-  
-  // Update admin menu visibility based on current user role
   updateAdminMenuVisibility();
   
-  // Add logout button to menu if user is authenticated (after login redirect)
+  // Add logout button to menu if user is authenticated
   if (auth.isAuthenticated()) {
     setTimeout(() => addLogoutToMenu(), 500);
   }
