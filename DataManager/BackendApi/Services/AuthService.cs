@@ -75,42 +75,42 @@ public class AuthService
     /// <summary>
     /// Authenticate user and return JWT token
     /// </summary>
-    public async Task<(bool Success, string Message, string? Token, User? User)> LoginAsync(string username, string password)
+    public Task<(bool Success, string Message, string? Token, User? User)> LoginAsync(string username, string password)
     {
         try
         {
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
-                return (false, "Username and password are required", null, null);
+                return Task.FromResult<(bool Success, string Message, string? Token, User? User)>((false, "Username and password are required", null, null));
 
             // Find user by username
             var user = _db.Users.FirstOrDefault(u => u.Username.ToLower() == username.ToLower());
             if (user == null)
             {
                 _logger.LogWarning($"Login attempt with non-existent username: {username}");
-                return (false, "Invalid username or password", null, null);
+                return Task.FromResult<(bool Success, string Message, string? Token, User? User)>((false, "Invalid username or password", null, null));
             }
 
             // Check if user is active
             if (!user.IsActive)
-                return (false, "User account is inactive", null, null);
+                return Task.FromResult<(bool Success, string Message, string? Token, User? User)>((false, "User account is inactive", null, null));
 
             // Verify password using BCrypt
             bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
             if (!isPasswordValid)
             {
                 _logger.LogWarning($"Failed login attempt for user: {username}");
-                return (false, "Invalid username or password", null, null);
+                return Task.FromResult<(bool Success, string Message, string? Token, User? User)>((false, "Invalid username or password", null, null));
             }
 
             // Generate JWT token
             string token = GenerateJwtToken(user);
             _logger.LogInformation($"User logged in successfully: {username}");
-            return (true, "Login successful", token, user);
+            return Task.FromResult<(bool Success, string Message, string? Token, User? User)>((true, "Login successful", token, user));
         }
         catch (Exception ex)
         {
             _logger.LogError($"Login error: {ex.Message}");
-            return (false, $"Login failed: {ex.Message}", null, null);
+            return Task.FromResult<(bool Success, string Message, string? Token, User? User)>((false, $"Login failed: {ex.Message}", null, null));
         }
     }
 
