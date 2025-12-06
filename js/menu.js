@@ -673,6 +673,50 @@ document.addEventListener('click', (e) => {
   
   const action = btn.dataset.action;
   console.log('[Menu] Action clicked:', action, 'currentMenu:', currentMenu);
+  
+  // Handle back-instructions first, before checking currentMenu
+  if (action === 'back-instructions') {
+    console.log('[Menu] Back-instructions clicked');
+    console.log('[Menu] Current previousMenu:', previousMenu);
+    console.log('[Menu] Game instance exists:', !!gameInstance);
+    console.log('[Menu] Game started:', gameInstance && gameInstance.isStarted && gameInstance.isStarted());
+    
+    // Hide instructions modal first
+    if (menuElements.instructions) {
+      menuElements.instructions.classList.remove('active');
+      console.log('[Menu] Instructions modal hidden');
+    }
+    
+    // Check if game is actually running
+    if (gameInstance && gameInstance.isStarted && gameInstance.isStarted()) {
+      // Game is running - resume it
+      console.log('[Menu] Game is running, calling resume callback');
+      if (window.onCloseInstructionsFromMenu) {
+        window.onCloseInstructionsFromMenu();
+      }
+    } else {
+      // No game running - return to previous menu
+      console.log('[Menu] No game running, showing menu:', previousMenu || 'main');
+      const targetMenu = previousMenu || 'main';
+      
+      // Manually show the target menu
+      Object.values(menuElements).forEach(el => {
+        if (el) el.classList.remove('active');
+      });
+      
+      if (menuElements[targetMenu]) {
+        menuElements[targetMenu].classList.add('active');
+        currentMenu = targetMenu;
+        console.log('[Menu] Activated menu:', targetMenu);
+      }
+      
+      // Update admin visibility
+      if (targetMenu === 'main' || targetMenu === 'play' || targetMenu === 'gameOver') {
+        updateAdminMenuVisibility();
+      }
+    }
+    return; // Exit early
+  }
 
   if (currentMenu === 'main') handleMainMenuAction(action);
   else if (currentMenu === 'play') handlePlayMenuAction(action);
@@ -683,40 +727,12 @@ document.addEventListener('click', (e) => {
   else if (action === 'back-players-list') showMenu('play');
   else if (action === 'back-list') showMenu('asteroids');
   else if (action === 'back-generate') showMenu('main');
-  else if (action === 'back-instructions') {
-    console.log('[Menu] Back-instructions clicked. Game started?', gameInstance && gameInstance.isStarted && gameInstance.isStarted());
-    
-    // Hide instructions modal first
-    if (menuElements.instructions) {
-      menuElements.instructions.classList.remove('active');
-      console.log('[Menu] Instructions modal hidden');
-    }
-    
-    // If game is running, resume it and update UI
-    if (gameInstance && gameInstance.isStarted && gameInstance.isStarted()) {
-      console.log('[Menu] Game is running, resuming...');
-      // Call the resume callback from main.js which handles game resume and button text update
-      if (window.onCloseInstructionsFromMenu) {
-        window.onCloseInstructionsFromMenu();
-      }
-    } else {
-      console.log('[Menu] Game not running, showing previous menu');
-      // Return to previous menu if not in game
-      if (previousMenu && previousMenu !== 'instructions') showMenu(previousMenu);
-      else showMenu('main');
-    }
-  }
   else if (action === 'generate-confirm') handleGenerateConfirm();
 });
 
 // Export public API for main.js to call
 export function setGameInstance(game) {
   gameInstance = game;
-}
-
-// Get current player name
-export function getCurrentPlayerName() {
-  return currentPlayerName;
 }
 
 // Update admin-only menu visibility based on user role
